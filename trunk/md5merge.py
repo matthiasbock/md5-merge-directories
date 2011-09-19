@@ -1,35 +1,32 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-15 -*-
 
-# Programm Parameter
-
 import sys
-
-try:
-	dir1 = sys.argv[1].rstrip("/")
-	dir2 = sys.argv[2].rstrip("/")
-except:
-	print " Dieses Skript führt zwei Verzeichnisse zusammen, die nominal das Gleiche enthalten sollen."
-	print " Dabei wird die Equivalenz von Dateien mit demselben Pfad anhand der MD5-Prüfsummen validiert."
-	print " Dateien, die sich unterscheiden, werden umbenannt und in das erstere angegebene Verzeichnis verschoben."
-	sys.exit(1)
-
-# gibt es die übergebenen Pfade wirklich ?
-
 import os
-
-if (not os.path.exists( dir1 )) or (not os.path.isdir( dir1 )):
-	print dir1+" does not exist / is not a folder"
-	sys.exit(1)
-
-if (not os.path.exists( dir2 )) or (not os.path.isdir( dir2 )):
-	print dir2+" does not exist / is not a folder"
-	sys.exit(1)
-
-# compare directory by directory
-
 import hashlib
 import shutil
+
+if len(sys.argv) < 3:
+	print " Dieses Skript führt zwei Verzeichnisse zusammen, die den gleichartigen Inhalt möglicherweise in unterschiedlichen Fassungen enthalten."
+	print " Alle Dateien werden anhand ihrer MD5-Prüfsummen verglichen."
+	print " Dateien, die sich unterscheiden, werden umbenannt und in das erstere angegebene Verzeichnis verschoben."
+	sys.exit(0)
+
+dir1 = sys.argv[1].rstrip("/")
+if not os.path.exists( dir1 ):
+	print "Error: '"+dir1+"' not found"
+	sys.exit(1)
+if not os.path.isdir( dir1 ):
+	print "Error: '"+dir1+"' is not a folder"
+	sys.exit(1)
+
+dir2 = sys.argv[2].rstrip("/")
+if not os.path.exists( dir2 ):
+	print "Error: '"+dir2+"' not found"
+	sys.exit(1)
+if not os.path.isdir( dir2 ):
+	print "Error: '"+dir2+"' is not a folder"
+	sys.exit(1)
 
 def largefileMD5( filename ):
 	md5 = hashlib.md5()
@@ -75,14 +72,14 @@ def compare( relative_folder ): 							# rekursive Funktion
 			if not os.path.exists( left_item ):	
 				print "-> creating folder "+left_item
 				os.mkdir( left_item )		# erzeuge es ggf. auch links
-			if not os.path.islink( right_item ):
-				compare( relative_folder+"/"+item )	# und vergleiche (rekursiv) die beiden Verzeichnisse
-			try:
-				os.rmdir( right_item )		# nachdem das rechte danach leer sein sollte, können wir es löschen
-			except:
-				pass
+			compare( relative_folder+"/"+item )	# und vergleiche (rekursiv) die beiden Verzeichnisse
+			os.rmdir( right_item )			# nachdem das rechte danach leer sein sollte, können wir es löschen
 			print ""
 
-compare( "." )
-os.rmdir( dir2 )
+for i in range(2, len(sys.argv)):
+	dir1 = sys.argv[1]
+	dir2 = sys.argv[i]
+	print "merging  '"+dir1+"'  and  '"+dir2+"'  ..."
+	compare( "." )
+	os.rmdir( dir2 )
 
