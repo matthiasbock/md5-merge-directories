@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-15 -*-
 
+import getopt
 import sys
 import os
 import hashlib
@@ -64,16 +65,23 @@ if len(sys.argv) < 3:
 	print " Dateien, die sich unterscheiden, werden umbenannt und in das erstere angegebene Verzeichnis verschoben."
 	exit()
 
-for i in range(2, len(sys.argv)):
-	dir1 = sys.argv[1]
-	if not os.path.exists( dir1 ):
-		print "Error: '"+dir1+"' not found"
-		break
-	if not os.path.isdir( dir1 ):
-		print "Error: '"+dir1+"' is not a folder"
-		break
+opts, args = getopt.getopt(sys.argv[1:], "c", ["copy"])
+copy = False
+for o, a in opts:
+	if o in ("-c", "--copy"):
+		copy = True
+	else:
+		print 'Warning: Ignoring unrecognized argument "'+o+'".'
 
-	dir2 = sys.argv[i]
+dir1 = a[0]
+if not os.path.exists( dir1 ):
+	print "Error: '"+dir1+"' not found"
+	sys.exit(1)
+if not os.path.isdir( dir1 ):
+	print "Error: '"+dir1+"' is not a folder"
+	sys.exit(1)
+
+for dir2 in a[1:]:
 	if not os.path.exists( dir2 ):
 		print "Error: '"+dir2+"' not found"
 		break
