@@ -14,70 +14,70 @@ def largefileMD5( filename ):
 			md5.update(chunk)
 	return md5.hexdigest()
 
-def merge(dir1, dir2, relative_folder="."):	# recurse
+def merge(target_folder, source_folder, relative_folder="."):	# recurse
 	global keep
 	global overwrite
 
 	print relative_folder+"/"
 
-	for item in os.listdir( dir2+"/"+relative_folder ):				# für jede Datei/jedes Verzeichnis, das "rechts" existiert ...
+	for item in os.listdir( os.path.join(source_folder, relative_folder) ):				# für jede Datei/jedes Verzeichnis, das "rechts" existiert ...
 
-		left_file = dir1+"/"+relative_folder+"/"+item
-		right_file = dir2+"/"+relative_folder+"/"+item
+		target = os.path.join(target_folder, relative_folder, item)
+		source = os.path.join(source_folder, relative_folder, item)
 
-		if os.path.isfile( right_file ):				#   ist es eine Datei:
-			if os.path.exists( left_file ):
-				left_filesize = os.path.getsize(left_file)
-				right_filesize = os.path.getsize(right_file)
-				if right_filesize != left_filesize:
-					left_md5 = "Size Mismatch"
-					right_md5 = "-"
+		if os.path.isfile( source ):				#   ist es eine Datei:
+			if os.path.exists( target ):
+				target_filesize = os.path.getsize(target)
+				source_filesize = os.path.getsize(source)
+				if source_filesize != target_filesize:
+					target_md5sum = "Size Mismatch"
+					source_md5sum = "-"
 				else:
-					left_md5 = largefileMD5( left_file )
-					if left_filesize == 0:
-						right_md5 = "-"	# overwrite empty files left
+					target_md5sum = largefileMD5( target )
+					if target_filesize == 0:
+						source_md5sum = "-"	# overwrite empty files left
 					else:
-						right_md5 = largefileMD5( right_file )
+						source_md5sum = largefileMD5( source )
 			else:
-				left_md5 = "Not Found"
-				right_md5 = "-"
+				target_md5sum = "Not Found"
+				source_md5sum = "-"
 
-			if left_md5 == right_md5:	# files are equal
+			if target_md5sum == source_md5sum:	# files are equal
 				if not keep:
-					os.remove( right_file )
+					os.remove( source )
 				print ".",
 			else:				# not equal
-				print '\n'+item+'\t\t in "'+dir1+'": '+left_md5+' , in "'+dir2+'": '+right_md5
-				if left_md5 == "Not Found":
-					newname = left_file
+				print '\n'+item+' not equal:\t\t in "'+target_folder+'": '+target_md5sum+' , in "'+source_folder+'": '+source_md5sum
+				if target_md5sum == "Not Found":
+					move_to_filename = target	# simply move/copy to move_to_filename
 				else:
 					if overwrite:
-						os.remove( left_file )
-						newname = left_file
+						os.remove( target )
+						move_to_filename = target
 					else:
-						if left_filesize == 0:
-							os.remove( left_file )
-							newname = left_file
+						if target_filesize == 0:
+							os.remove( target )
+							move_to_filename = target
 						else:
-							if right_md5 == "":
-								right_md5 = largefileMD5( right_file )
-							newname = left_file+"-"+right_md5
+							if source_md5sum == "":
+								source_md5sum = largefileMD5( source )
+							move_to_filename = target+"-"+source_md5sum
 				if keep:
-					shutil.copy( right_file, newname )
+					shutil.copy( source, move_to_filename )
 				else:
-					shutil.move( right_file, newname )
+					shutil.move( source, move_to_filename )
 
-		elif os.path.isdir( right_file ):				# wenn es allerdings ein Verzeichnis ist
-			if not os.path.exists( left_file ):	
-				print "Creating Folder "+left_file
-				os.mkdir( left_file )						# erzeuge es ggf. auch links
-			merge( dir1, dir2, relative_folder=relative_folder+"/"+item )
+		elif os.path.isdir( source ):				# wenn es allerdings ein Verzeichnis ist
+			if not os.path.exists( target ):	
+				print "Creating Folder "+target
+				os.mkdir( target )						# erzeuge es ggf. auch links
+			merge( target_folder, source_folder, relative_folder=relative_folder+"/"+item )
 			if not keep:
-				os.rmdir( right_file )
+				os.rmdir( source )
 			print ""
 
 if len(sys.argv) < 3:
-	print "Usage: md5merge.py [--keep] [--overwrite] dir1 dir2 dir3 ..."
+	print "Usage: md5merge.py [--keep] [--overwrite] target_folder source_folder1 source_folder2 ..."
 	exit()
 
 opts, args = getopt.getopt(sys.argv[1:], "k:o", ["keep", "overwrite"])
@@ -93,26 +93,26 @@ for o, a in opts:
 	else:
 		print 'Warning: Ignoring unrecognized argument "'+o+'".'
 
-dir1 = args[0]
-if not os.path.exists( dir1 ):
-	print "Error: '"+dir1+"' not found"
+target_folder = args[0]
+if not os.path.exists( target_folder ):
+	print "Error: '"+target_folder+"' not found"
 	sys.exit(1)
-if not os.path.isdir( dir1 ):
-	print "Error: '"+dir1+"' is not a folder"
+if not os.path.isdir( target_folder ):
+	print "Error: '"+target_folder+"' is not a folder"
 	sys.exit(1)
 
-for dir2 in args[1:]:
-	if not os.path.exists( dir2 ):
-		print "Error: '"+dir2+"' not found"
+for source_folder in args[1:]:
+	if not os.path.exists( source_folder ):
+		print "Error: '"+source_folder+"' not found"
 		break
-	if not os.path.isdir( dir2 ):
-		print "Error: '"+dir2+"' is not a folder"
+	if not os.path.isdir( source_folder ):
+		print "Error: '"+source_folder+"' is not a folder"
 		break
 
-	print 'Merging "'+dir2+'" into "'+dir1+'" ...'
-	merge(dir1, dir2)
+	print 'Merging "'+source_folder+'" into "'+target_folder+'" ...'
+	merge(target_folder, source_folder)
 
 	if not keep:
-		print 'Removing remaining empty directory "'+dir2+'" ...'
-		os.rmdir(dir2)
+		print 'Removing remaining empty directory "'+source_folder+'" ...'
+		os.rmdir(source_folder)
 
