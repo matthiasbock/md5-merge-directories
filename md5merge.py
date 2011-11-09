@@ -63,14 +63,26 @@ def merge(target_folder, source_folder, relative_folder="."):	# recurse
 								source_md5sum = largefileMD5( source )
 							move_to_filename = target+"-"+source_md5sum
 				if keep:
-					shutil.copy( source, move_to_filename )
+					try:
+						shutil.copy( source, move_to_filename )
+					except:
+						print "FAILED: copy "+source+" "+move_to_filename
+						sys.exit(1)
 				else:
-					shutil.move( source, move_to_filename )
+					try:
+						shutil.move( source, move_to_filename )
+					except:
+						print "FAILED: move "+source+" "+move_to_filename
+						sys.exit(1)
 
 		elif os.path.isdir( source ):				# wenn es allerdings ein Verzeichnis ist
 			if not os.path.exists( target ):	
 				print "Creating Folder "+target
-				os.mkdir( target )						# erzeuge es ggf. auch links
+				try:
+					os.mkdir( target )		# erzeuge es ggf. auch im Zielverzeichnis
+				except:
+					print "FAILED: creating folder "+target
+					sys.exit(1)
 			merge( target_folder, source_folder, relative_folder=relative_folder+"/"+item )
 			if not keep:
 				os.rmdir( source )
@@ -78,7 +90,7 @@ def merge(target_folder, source_folder, relative_folder="."):	# recurse
 
 if len(sys.argv) < 3:
 	print "Usage: md5merge.py [--keep] [--overwrite] target_folder source_folder1 source_folder2 ..."
-	exit()
+	sys.exit()
 
 opts, args = getopt.getopt(sys.argv[1:], "k:o", ["keep", "overwrite"])
 global keep
