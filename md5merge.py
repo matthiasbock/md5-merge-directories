@@ -25,8 +25,27 @@ def merge(target_folder, source_folder, relative_folder="."):	# recurse
 		target = os.path.join(target_folder, relative_folder, item)
 		source = os.path.join(source_folder, relative_folder, item)
 
-		if os.path.isfile( source ):				#   ist es eine Datei:
-			if os.path.exists( target ):
+		if os.path.islink( source ):				# symbolic link
+			print source+" is link"
+			if os.path.lexists( target ):
+				source_target = os.readlink( source )
+				target_target = os.readlink( target )
+				if source_target == target_target:
+					# identical symbolic links
+					print ".",
+					os.remove( source )
+				else:
+					print "Mismatching symbolic links: "
+					print "\t"+source+": "+source_target
+					print "\t"+target+": "+target_target
+					shutil.move( source, target+".2" )
+			elif os.path.exists( target ):
+				print "Merging symbolic link and regular file: "
+				print "\t"+source+": "+source_target
+				shutil.move( source, target+".2" )
+
+		elif os.path.isfile( source ):				# regular file
+			if os.path.exists( target ) or os.path.lexists( target ):
 				target_filesize = os.path.getsize(target)
 				source_filesize = os.path.getsize(source)
 				if source_filesize != target_filesize:
@@ -35,7 +54,8 @@ def merge(target_folder, source_folder, relative_folder="."):	# recurse
 				else:
 					target_md5sum = largefileMD5( target )
 					if target_filesize == 0:
-						source_md5sum = "-"	# overwrite empty files left
+						# overwrite empty files
+						source_md5sum = "-"
 					else:
 						source_md5sum = largefileMD5( source )
 			else:
@@ -46,10 +66,11 @@ def merge(target_folder, source_folder, relative_folder="."):	# recurse
 				if not keep:
 					os.remove( source )
 				print ".",
-			else:				# not equal
+			else:					# not equal
 				print '\n'+item+' not equal:\t\t in "'+target_folder+'": '+target_md5sum+' , in "'+source_folder+'": '+source_md5sum
 				if target_md5sum == "Not Found":
-					move_to_filename = target	# simply move/copy to move_to_filename
+					# simply move/copy to move_to_filename
+					move_to_filename = target
 				else:
 					if overwrite:
 						os.remove( target )
