@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2.6
 # -*- coding: iso-8859-15 -*-
 
 import getopt
@@ -7,124 +7,175 @@ import os
 import hashlib
 import shutil
 
-def largefileMD5( filename ):
-	md5 = hashlib.md5()
-	with open(filename,'rb') as f: 
-		for chunk in iter(lambda: f.read(8192), ''): 
-			md5.update(chunk)
-	return md5.hexdigest()
 
-def merge(target_folder, source_folder, relative_folder="."):	# recurse
-	global keep
-	global overwrite
+# move or copy?
+parameter_keep_source = "copy"
+
+# overwrite mismatching or rename mismatching source file?
+parameter_overwrite_mismatching = "overwrite"
+
+# Usage
+if len(sys.argv) < 3:
+	print "Usage: md5merge.py [--"+parameter_keep_source+"] [--"+parameter_overwrite_mismatching+"] target_folder source_folder1 source_folder2 ..."
+	sys.exit()
+
+# make sure, all parameters are preceeding the folders
+if sys.argv[len(sys.argv)-1][:2] == "--":
+	print "Error: Parameters must preceed folders."
+	sys.exit(1)
+
+# parse parameters
+opts, args = getopt.getopt(sys.argv[1:], "", [parameter_keep_source, parameter_overwrite_mismatching])
+global keep_source
+global overwrite_mismatching
+global overwrite_empty_files
+keep_source = False
+overwrite_mismatching = False
+overwrite_empty_files = True
+for o, a in opts:
+	if o == parameter_keep_source:
+		keep_source = True
+	elif o == parameter_overwrite_mismatching:
+		overwrite_mismatching = True
+	else:
+		print 'Warning: Ignoring unrecognized parameter "'+o+'".'
+
+#_____________________________________________________________________________
+#		| not found	| file	| link	| dir	|
+# exists	|
+# islink	|
+# isfile	|
+# isdir		|
+
+# main merge function
+def merge(target_folder, source_folder, relative_folder="."):
+
+	global keep_source
+	global overwrite_mismatching
+	global overwrite_empty_files
 
 	print relative_folder+"/"
 
-	for item in os.listdir( os.path.join(source_folder, relative_folder) ):				# für jede Datei/jedes Verzeichnis, das "rechts" existiert ...
+	def largefileMD5( filename ):
+		md5 = hashlib.md5()
+		with open(filename,'rb') as f: 
+			for chunk in iter(lambda: f.read(8192), ''): 
+				md5.update(chunk)
+		return md5.hexdigest()
+
+	for item in os.listdir( os.path.join(source_folder, relative_folder) ):		# for every file in source folder :
 
 		target = os.path.join(target_folder, relative_folder, item)
 		source = os.path.join(source_folder, relative_folder, item)
 
-		if os.path.islink( source ):				# symbolic link
-			print source+" is link"
-			if os.path.lexists( target ):
-				source_target = os.readlink( source )
-				target_target = os.readlink( target )
-				if source_target == target_target:
-					# identical symbolic links
-					print ".",
-					os.remove( source )
-				else:
-					print "Mismatching symbolic links: "
-					print "\t"+source+": "+source_target
-					print "\t"+target+": "+target_target
-					shutil.move( source, target+".2" )
-			elif os.path.exists( target ):
-				print "Merging symbolic link and regular file: "
-				print "\t"+source+": "+source_target
-				shutil.move( source, target+".2" )
-
-		elif os.path.isfile( source ):				# regular file
-			if os.path.exists( target ) or os.path.lexists( target ):
-				target_filesize = os.path.getsize(target)
-				source_filesize = os.path.getsize(source)
-				if source_filesize != target_filesize:
-					target_md5sum = "Size Mismatch"
-					source_md5sum = "-"
-				else:
-					target_md5sum = largefileMD5( target )
-					if target_filesize == 0:
-						# overwrite empty files
-						source_md5sum = "-"
-					else:
-						source_md5sum = largefileMD5( source )
-			else:
-				target_md5sum = "Not Found"
-				source_md5sum = "-"
-
-			if target_md5sum == source_md5sum:	# files are equal
-				if not keep:
-					os.remove( source )
-				print ".",
-			else:					# not equal
-				print '\n'+item+' not equal:\t\t in "'+target_folder+'": '+target_md5sum+' , in "'+source_folder+'": '+source_md5sum
-				if target_md5sum == "Not Found":
-					# simply move/copy to move_to_filename
-					move_to_filename = target
-				else:
-					if overwrite:
-						os.remove( target )
-						move_to_filename = target
-					else:
-						if target_filesize == 0:
-							os.remove( target )
-							move_to_filename = target
-						else:
-							if source_md5sum == "":
-								source_md5sum = largefileMD5( source )
-							move_to_filename = target+"-"+source_md5sum
-				if keep:
-					try:
-						shutil.copy( source, move_to_filename )
-					except:
-						print "FAILED: copy "+source+" "+move_to_filename
-						sys.exit(1)
-				else:
-					try:
-						shutil.move( source, move_to_filename )
-					except:
-						print "FAILED: move "+source+" "+move_to_filename
-						sys.exit(1)
-
-		elif os.path.isdir( source ):				# wenn es allerdings ein Verzeichnis ist
+		if os.path.isdir( source ):						## source is a folder ?
 			if not os.path.exists( target ):	
 				print "Creating Folder "+target
 				try:
-					os.mkdir( target )		# erzeuge es ggf. auch im Zielverzeichnis
+					os.mkdir( target )
 				except:
-					print "FAILED: creating folder "+target
+					print "Error: Failed creating folder "+target
 					sys.exit(1)
-			merge( target_folder, source_folder, relative_folder=relative_folder+"/"+item )
-			if not keep:
+			else:
+				print ".",
+
+			merge( target_folder, source_folder, relative_folder=relative_folder+"/"+item )	# recurse into folder
+			if not keep_source:
 				os.rmdir( source )
-			print ""
 
-if len(sys.argv) < 3:
-	print "Usage: md5merge.py [--keep] [--overwrite] target_folder source_folder1 source_folder2 ..."
-	sys.exit()
+			print "" # newline
 
-opts, args = getopt.getopt(sys.argv[1:], "k:o", ["keep", "overwrite"])
-global keep
-global overwrite
-keep = False
-overwrite = False
-for o, a in opts:
-	if o in ("-k", "--keep"):
-		keep = True
-	elif o in ("-o", "--overwrite"):
-		overwrite = True
-	else:
-		print 'Warning: Ignoring unrecognized argument "'+o+'".'
+		elif not os.path.exists( target ):					## source is a file or a link,
+											## but does the target even exist ?
+			if keep_source:
+				try:
+					shutil.copy( source, target )
+				except:
+					print "Error: Failed to copy "+source+" to "+target
+					sys.exit(1)
+			else:
+				try:
+					shutil.move( source, target )
+				except:
+					print "Error: Failed to move "+source+" to "+target
+					sys.exit(1)
+
+		else:									# yes, it does!
+
+			if os.path.islink( source ):						## source is symbolic link ?
+
+				if os.path.islink( target ):					# target also a link?
+					source_target = os.readlink( source )
+					target_target = os.readlink( target )
+					if source_target == target_target:			# links identical
+						# links with identical targets
+						print ".",
+						if not keep_source:
+							os.remove( source )
+					else:							# mismatching links
+						print "Mismatching symbolic links: "
+						print "\t"+source+": "+source_target
+						print "\t"+target+": "+target_target
+						if not keep_source:
+							shutil.move( source, target+".merged_mismatching_link" )
+						else:
+							shutil.copy( source, target+".merged_mismatching_link" )
+
+				elif os.path.isfile( target ):					# no, target is not a link!
+					print "Mismatch: Source is a link, target a regular file."
+					print "Sorry, don't know how to handle that, exiting ..."
+					sys.exit(1)
+
+			elif os.path.isfile( source ):						## regular file ?
+
+				if os.path.islink( target ):					# but target is a link?
+					print "Mismatch: Source is a regular file, target a symbolic link."
+					print "Sorry, don't know how to handle that, exiting ..."
+					sys.exit(1)
+
+				elif os.path.isfile( target ):					# no, target is a regular file!
+					target_filesize = os.path.getsize(target)
+					source_filesize = os.path.getsize(source)
+					if source_filesize != target_filesize:			# filesize differs
+						source_md5sum = "filesize differs"
+						target_md5sum = "doesn't matter"
+
+						if (target_filesize == 0) and overwrite_empty_files:	# but target is empty anyway
+							source_md5sum = "does'nt matter"
+							target_md5sum = "empty file (overwriting)"
+
+					else:							# compare by MD5sum
+						source_md5sum = largefileMD5( source )
+						target_md5sum = largefileMD5( target )
+
+				if target_md5sum == source_md5sum:	# files are equal
+					if not keep_source:
+						os.remove( source )
+					print ".",
+				else:					# files differ
+					print '\n'+item+' not equal:\t\t '+target_md5sum+' in "'+target_folder+'" vs. '+source_md5sum+' in "'+source_folder+'"'
+
+					if overwrite_mismatching or ((target_filesize == 0) and overwrite_empty_files):
+						os.remove( target )
+						move_to_filename = target
+					else:
+						if len(source_md5sum) != 32:	# some stupid comment instead of MD5sum
+							source_md5sum = largefileMD5( source )
+						move_to_filename = target+"."+source_md5sum
+
+					if keep_source:
+						try:
+							shutil.copy( source, move_to_filename )
+						except:
+							print "Error: Failed to copy "+source+" to "+move_to_filename
+							sys.exit(1)
+					else:
+						try:
+							shutil.move( source, move_to_filename )
+						except:
+							print "Error: Failed to move "+source+" to "+move_to_filename
+							sys.exit(1)
+
 
 target_folder = args[0]
 if not os.path.exists( target_folder ):
@@ -145,7 +196,7 @@ for source_folder in args[1:]:
 	print 'Merging "'+source_folder+'" into "'+target_folder+'" ...'
 	merge(target_folder, source_folder)
 
-	if not keep:
+	if not keep_source:
 		print 'Removing remaining empty directory "'+source_folder+'" ...'
 		os.rmdir(source_folder)
 
