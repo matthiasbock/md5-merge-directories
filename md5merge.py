@@ -33,9 +33,9 @@ keep_source = False
 overwrite_mismatching = False
 overwrite_empty_files = True
 for o, a in opts:
-	if o == parameter_keep_source:
+	if o == "--"+parameter_keep_source:
 		keep_source = True
-	elif o == parameter_overwrite_mismatching:
+	elif o == "--"+parameter_overwrite_mismatching:
 		overwrite_mismatching = True
 	else:
 		print 'Warning: Ignoring unrecognized parameter "'+o+'".'
