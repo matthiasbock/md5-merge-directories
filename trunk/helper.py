@@ -2,6 +2,7 @@
 # -*- coding: iso-8859-15 -*-
 
 import sys, os, hashlib, getopt
+from time import sleep
 
 def parse_console_arguments(_keep_source='copy', _overwrite_mismatching='overwrite', _verbose='verbose'):
 
@@ -44,6 +45,8 @@ def parse_console_arguments(_keep_source='copy', _overwrite_mismatching='overwri
 	target_folder = args[0]
 	source_folders = args[1:]
 
+	return target_folder, source_folders, keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
+
 
 def ensure_target_is_valid():
 
@@ -58,16 +61,27 @@ def ensure_target_is_valid():
 
 
 def print_settings():
-	global ...
 
-	print ...
-	print "You can always interrupt using Ctrl+C"
-	print ""
+	global keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
+	global target_folder, source_folders
+
+	print ''
+	print 'About to merge the content of '+str(len(source_folders))+' folders into '+target_folder+': '+', '.join(source_folders)
+	print ''
+	print 'Settings:'
+	print '* copy instead of moving files and directories: '+str(keep_source)
+	print '* overwrite target files on mismatch instead of renaming the source: '+str(overwrite_mismatching)
+	print '* print verbose messages (ignored): '+str(verbose)
+	print '* overwrite empty target files: '+str(overwrite_empty_files)
+	print '* remove an empty source file, when the target file is not empty: '+str(favor_nonempty_target)
+	print ''
+	print 'You can always interrupt using Ctrl+C'
+	print ''
 
 	wait = 3
 	print "Starting in ..."
 	for i in range(wait):
-		print 
+		print str(wait-i)
 		sleep(1)
 
 
