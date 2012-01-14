@@ -15,4 +15,4 @@ Public keys are really necessary, if you plan to use md5merge over ssh. Else, fo
 
 == md5merge over SSH ==
 
-Using md5merge over SSH allows for merging tons of data across a network or the internet without transfering it. The md5merge util instead remotely calls md5sum on the server, thereby requesting the already calculated file hash, rather than requesting the data and calculate it by itself.
+Using md5merge over SSH allows for merging tons of data across a network or the internet without transfering the data. The md5merge util instead remotely calls md5sum on the server, thereby requesting the already calculated file hash, rather than requesting the data and calculate it by itself.
