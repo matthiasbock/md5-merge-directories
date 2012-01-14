@@ -10,7 +10,7 @@ Provided that you have a login, you can remotely execute a command on a server, 
      ssh user@remote-server.org md5sum /testfile
 }}}
 
-== md5merge over SSH ==
+== [SSH_Usage md5merge over SSH] ==
 
 Using md5merge over SSH allows for merging tons of data across a network or the internet without transfering the data. The md5merge util instead remotely calls md5sum on the server, thereby requesting the already calculated file hash, rather than requesting the data and calculate it by itself.
 
