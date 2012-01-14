@@ -4,7 +4,9 @@
 
 Merging files over SSH uses the same command as without, only the parameters must be specified correctly:
 {{{
-     md5merge ssh://user@server1:/media/data/ ssh://root@server2:/media/data/
+     md5merge user@server1:/media/data/ root@server2:/media/data/
 }}}
 
 This will login user on server1 as well as root on server2, and merge all files in /media/data/ on server2 into /media/data/ on server1. It's as simple as that.
+
+Note that : and @ are not special characters on all file systems. Whenever an @ is followed by a :/ or :~, md5merge will interpret this as an attempt to use SSH, even if folders actually named like this are present locally!
