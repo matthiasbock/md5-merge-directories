@@ -1,18 +1,19 @@
 #summary SSH
 
 = SSH =
+A Secure Shell is an encrypted remote terminal.
 
 == Introduction ==
 
-A Secure Shell is an encrypted remote terminal. You can remote execute a command on a server, using the following statement:
+Provided that you have a login, you can remotely execute a command on a server, typing the following into your console:
 {{{
      ssh user@remote-server.org md5sum /testfile
 }}}
 
-== Public Key Authentication ==
-
-Public keys are really necessary, if you plan to use md5merge over ssh. Else, for every single MD5 request, a passwort login prompt will show up, which will get annoying, trust me.
-
 == md5merge over SSH ==
 
 Using md5merge over SSH allows for merging tons of data across a network or the internet without transfering the data. The md5merge util instead remotely calls md5sum on the server, thereby requesting the already calculated file hash, rather than requesting the data and calculate it by itself.
+
+== Public Key Authentication ==
+
+Public keys are really necessary, if you plan to use md5merge over ssh. Else, for every single MD5 request, a passwort login prompt will show up, which will get annoying, trust me.
