@@ -25,10 +25,14 @@ def merge(target_folder, source_folder, relative_folder="."):
 			if os.path.exists( target ):					### target exists
 				if os.path.isdir( target ):
 					print ".",
-				else:							# but is not a folder -> FATAL, exit
+				else:							# target is not a folder -> FATAL, exit
 					print "Fatal: Unable to merge directory into file '"+target+"'"
 					sys.exit(1)
 			else:
+				if os.path.islink( target ):				 # target is a broken link -> FATAL, exit
+					print "Fatal: Unable to merge directory into broken link '"+target+"'"
+					sys.exit(1)
+
 				print "Creating missing folder "+target+" ... "
 				os.mkdir( target )
 
@@ -39,13 +43,12 @@ def merge(target_folder, source_folder, relative_folder="."):
 
 			print "" # newline
 
-		elif not os.path.exists( target ):					## source is a file or a link,
-											## but target does not exist anyway
+		elif not (os.path.exists( target ) or os.path.islink( target )):	## source is a file or a link, but target does not exist anyway
+											## second statement exludes broken links, that are handled below
 			if keep_source:
 				shutil.copy( source, target )
 			else:
 				shutil.move( source, target )
-
 		else:									# source is file or link, and target exists
 
 			if os.path.islink( source ):						## source is a link
