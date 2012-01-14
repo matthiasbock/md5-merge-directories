@@ -2,9 +2,11 @@
 # -*- coding: iso-8859-15 -*-
 
 import sys, os, shutil
+
 from helper import *
 
 # Note: the --verbose options is currently ignored
+
 
 def merge(target_folder, source_folder, relative_folder="."):
 
@@ -123,7 +125,8 @@ def merge(target_folder, source_folder, relative_folder="."):
 
 if __name__ == '__main__':
 
-	parse_console_arguments("copy", "overwrite", "verbose")
+	target_folder, source_folders, keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target = parse_console_arguments("copy", "overwrite", "verbose")
+
 	ensure_target_is_valid()
 	print_settings()
 
