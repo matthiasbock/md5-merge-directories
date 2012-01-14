@@ -16,4 +16,4 @@ Using md5merge over SSH allows for merging tons of data across a network or the 
 
 == Public Key Authentication ==
 
-Public keys are really necessary, if you plan to use md5merge over ssh. Else, for every single MD5 request, a passwort login prompt will show up, which will get annoying, trust me.
+Public keys are really necessary, if you plan to use md5merge over SSH. Else, for every single MD5 request, a passwort login prompt will show up, which will get annoying, trust me.
