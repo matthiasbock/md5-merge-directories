@@ -142,5 +142,5 @@ if __name__ == '__main__':
 
 			if not keep_source:
 				print 'Removing remaining empty directory "'+source_folder+'" ...'
-				ormdir(source_folder)
+				rmdir(source_folder)
 
