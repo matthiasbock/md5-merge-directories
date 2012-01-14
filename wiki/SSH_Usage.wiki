@@ -9,4 +9,4 @@ Merging files over SSH uses the same command as without, only the parameters mus
 
 This will login user on server1 as well as root on server2, and merge all files in /media/data/ on server2 into /media/data/ on server1. It's as simple as that.
 
-Note that : and @ are not special characters, at least not on all file systems. Whenever an @ is followed by a :/ or :~ in a folder name, md5merge will interpret this as an attempt to use SSH, even if folders actually named like this are present locally!
+Note that : and @ are no special characters, at least not on Linux ext file systems. Whenever an @ is followed by a :/ or :~ in a folder name, md5merge will interpret this as an attempt to use SSH, even if folders actually named like this are present locally!
