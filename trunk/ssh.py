@@ -1,6 +1,9 @@
 #!/usr/bin/python2.6
 # -*- coding: iso-8859-15 -*-
 
+from subprocess import Popen, PIPE
+from shlex import split
+
 def is_remote( url ):
 	a = url.find('@')
 	b = url.find(':/')
@@ -8,6 +11,13 @@ def is_remote( url ):
 		b = url.find(':~')
 	c = url.find('/')
 	return ( a > -1 and b > -1 and a < c and b < c  and a < b )
+
+def login( url ):
+	return url[:url.find(':')]
+
+def ssh( command ):
+	...
+
 
 def listdir( folder ):
 	return os.listdir( folder )
