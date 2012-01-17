@@ -5,6 +5,7 @@ import sys, os
 
 from helper import *
 from filesystem import *
+from md5 import *
 
 # Note: the --verbose options is currently ignored
 

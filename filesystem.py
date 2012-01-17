@@ -1,7 +1,7 @@
 #!/usr/bin/python2.6
 # -*- coding: iso-8859-15 -*-
 
-from helper import largefileMD5
+from md5 import largefileMD5
 import os, shutil
 import ssh
 
