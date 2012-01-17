@@ -47,6 +47,12 @@ def md5sum( filename ):
 	else:
 		return largefileMD5( filename )
 
+def isfile( thing ):
+	if ssh.is_remote( thing ):
+		return ssh.isfile( thing )
+	else:
+		return os.path.isfile( thing )
+
 def islink( thing ):
 	if ssh.is_remote( thing ):
 		return ssh.islink( thing )

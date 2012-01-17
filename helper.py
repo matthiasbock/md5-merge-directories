@@ -1,7 +1,7 @@
 #!/usr/bin/python2.6
 # -*- coding: iso-8859-15 -*-
 
-import sys, hashlib, getopt
+import sys, getopt
 from time import sleep
 from filesystem import *
 

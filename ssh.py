@@ -53,10 +53,13 @@ def scp( source, target ):
 		raise	# should be fatal, else the file may accidently be deleted permanently
 
 def getsize( filename ):
-	return ssh( login(filename), "stat -c %s '"+path(thing)+"'" )
+	return int(ssh( login(filename), "stat -c %s '"+path(filename)+"'" ))
 
 def md5sum( filename ):
 	return ssh( login(filename), 'md5sum "'+path(filename)+'"' )[:32]
+
+def isfile( thing ):
+	return ssh( login(thing), "if [ -f '"+path(thing)+"' ]; then echo true; else echo false; fi" )=='true'
 
 def islink( thing ):
 	return ssh( login(thing), "if [ -h '"+path(thing)+"' ]; then echo true; else echo false; fi" )=='true'
