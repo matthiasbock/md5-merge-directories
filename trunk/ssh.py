@@ -12,46 +12,65 @@ def is_remote( url ):
 	c = url.find('/')
 	return ( a > -1 and b > -1 and a < c and b < c  and a < b )
 
+
 def login( url ):
 	return url[:url.find(':')]
 
-def ssh( command ):
-	...
+def path( url ):
+	return url[url.find(':')+1:]
+
+
+def ssh( login, command ):
+	print "ssh "+login+" "+command
+	p = Popen( ["ssh", login, command], stdout=PIPE )
+	return '\n'.join(p.stdout.readlines()).strip()
+
+# see also: http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html
+
+#def bash( login, script ):
+#	return ssh( login, '/bin/bash -c '+script )
 
 
 def listdir( folder ):
-	return os.listdir( folder )
+	return ssh( login(folder), 'ls -1 "'+path(folder)+'"' ).split('\n')
 
 def isdir( thing ):
-	return os.path.isdir( thing )
+	return ssh( login(thing), "if [ -d '"+path(thing)+"' ]; then echo true; else echo false; fi" )=='true'
 
 def mkdir( folder ):
-	return os.mkdir( folder )
+	return ssh( login(folder), 'mkdir "'+path(folder)+'"' )
 
 def rmdir( folder ):
-	return os.rmdir( folder )
+	return ssh( login(folder), 'rmdir "'+path(folder)+'"' )
 
 def exists( thing ):
-	return os.path.exists( thing )
+	return ssh( login(thing), "if [ -e '"+path(thing)+"' ]; then echo true; else echo false; fi" )=='true'
+
+def scp( source, target ):
+	print "scp -Cpr "+source+" "+target
+	Popen( ["scp", "-Cpr", source, target] ).wait()
+	if not exists(source) or not exists(target):
+		raise	# should be fatal, else the file may accidently be deleted permanently
 
 def getsize( filename ):
-	return os.path.getsize( filename )
+	return ssh( login(filename), "stat -c %s '"+path(thing)+"'" )
 
 def md5sum( filename ):
-	return largefileMD5( filename )
+	return ssh( login(filename), 'md5sum "'+path(filename)+'"' )[:32]
 
 def islink( thing ):
-	return os.path.islink( thing )
+	return ssh( login(thing), "if [ -h '"+path(thing)+"' ]; then echo true; else echo false; fi" )=='true'
 
 def readlink( link ):
-	return os.readlink( link )
-
-def copy( source, target ):
-	return shutil.copy( source, target )
-
-def move( source, target ):
-	return shutil.move( source, target )
+	return ssh( login(link), "readlink '"+path(link)+"'" )
 
 def remove( filename ):
-	return os.remove( filename )
+	ssh( login(filename), 'rm "'+path(filename)+'"' )
+
+def copy( source, target ):
+	scp(source, target)
+
+def move( source, target ):
+	scp(source, target)
+	remove(source)
 

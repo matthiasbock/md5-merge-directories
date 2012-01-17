@@ -1,8 +1,9 @@
 #!/usr/bin/python2.6
 # -*- coding: iso-8859-15 -*-
 
-import sys, os, hashlib, getopt
+import sys, hashlib, getopt
 from time import sleep
+from filesystem import *
 
 def parse_console_arguments(_keep_source='copy', _overwrite_mismatching='overwrite', _verbose='verbose'):
 
@@ -52,10 +53,10 @@ def ensure_target_is_valid():
 
 	global target_folder
 
-	if not os.path.exists( target_folder ):
+	if not exists( target_folder ):
 		print "Error: '"+target_folder+"' not found"
 		sys.exit(1)
-	if not os.path.isdir( target_folder ):
+	if not isdir( target_folder ):
 		print "Error: '"+target_folder+"' is not a folder"
 		sys.exit(1)
 
@@ -86,24 +87,16 @@ def print_settings():
 
 
 def source_is_valid( source ):
-	if not os.path.exists( source ):
+	if not exists( source ):
 		print "Error: Source '"+source+"' not found. Skipping."
 		return False
-	if not os.path.isdir( source ):
+	if not isdir( source ):
 		print "Error: Source '"+source+"' is not a folder. Skipping."
 		return False
 	if source_is_a_subfolder_of_target( source ):
 		print "Error: Source must not be a subfolder of target: '"+source+"'. Skipping."
 		return False
 	return True
-
-
-def largefileMD5( filename ):
-	md5 = hashlib.md5()
-	with open(filename,'rb') as f: 
-		for chunk in iter(lambda: f.read(8192), ''): 
-			md5.update(chunk)
-	return md5.hexdigest()
 
 
 def source_is_a_subfolder_of_target( source ):
