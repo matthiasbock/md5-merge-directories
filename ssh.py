@@ -23,7 +23,8 @@ def path( url ):
 def ssh( login, command ):
 	print "ssh "+login+" "+command
 	p = Popen( ["ssh", login, command], stdout=PIPE )
-	return '\n'.join(p.stdout.readlines()).strip()
+	out = [line.strip() for line in p.stdout.readlines()]
+	return '\n'.join( out )
 
 # see also: http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html
 
