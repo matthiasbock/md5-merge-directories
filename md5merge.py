@@ -20,6 +20,10 @@ def merge(target_folder, source_folder, relative_folder="."):
 
 	for item in listdir( currentfolder ):					# for every file in source folder :
 
+		if item == '':
+			print 'Error: Empty item. Programming error? Please report this incident.'
+			sys.exit(1)
+
 		target = os.path.join(target_folder, relative_folder, item)
 		source = os.path.join(source_folder, relative_folder, item)
 
