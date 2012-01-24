@@ -1,8 +1,10 @@
 #!/usr/bin/python2.6
 # -*- coding: iso-8859-15 -*-
 
-from subprocess import Popen, PIPE
-from shlex import split
+import os
+import paramiko
+
+ssh_terminals = {}
 
 def is_remote( url ):
 	a = url.find('@')
@@ -21,10 +23,14 @@ def path( url ):
 
 
 def ssh( login, command ):
-	print "ssh "+login+" "+command
-	p = Popen( ["ssh", login, command], stdout=PIPE )
-	out = [line.strip() for line in p.stdout.readlines()]
-	return '\n'.join( out )
+	if not login in ssh_terminals.keys():
+		ssh_terminals[login] = paramiko.SSHClient()
+		ssh_terminals[login].set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
+		s = login.split('@')
+		ssh_terminals[login].connect(s[1], username=s[0])
+
+	stdin, stdout, stderr = ssh_terminals[login].exec_command(command)
+	return (''.join(stdout.readlines())).strip()
 
 # see also: http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html
 
