@@ -30,7 +30,9 @@ def ssh( login, command ):
 		ssh_terminals[login].connect(s[1], username=s[0])
 
 	stdin, stdout, stderr = ssh_terminals[login].exec_command(command)
-	return (''.join(stdout.readlines())).strip()
+	result = (''.join(stdout.readlines())).strip()
+#	print result
+	return result
 
 # see also: http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html
 
@@ -39,7 +41,11 @@ def ssh( login, command ):
 
 
 def listdir( folder ):
-	return ssh( login(folder), 'ls -1 "'+path(folder)+'"' ).split('\n')
+	result = ssh( login(folder), 'ls -1 "'+path(folder)+'"' ).split('\n')
+	if result != ['']:
+		return result
+	else:
+		return []
 
 def isdir( thing ):
 	return ssh( login(thing), "if [ -d '"+path(thing)+"' ]; then echo true; else echo false; fi" )=='true'
