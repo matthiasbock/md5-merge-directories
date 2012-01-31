@@ -91,16 +91,14 @@ def merge(target_folder, source_folder, relative_folder="."):
 					source_filesize = getsize(source)
 
 					if source_filesize != target_filesize:			# compare by filesize (to avoid cpu-intense hash calculation)
-						source_hash = "<different filesize>"
-						target_hash = "<not calculated>"
+						source_hash = str(source_filesize)+' bytes'
+						target_hash = str(target_filesize)+' bytes'
 
 						if (target_filesize == 0) and overwrite_empty_files:	# target is an empty file
-							source_hash = "<not empty>"
-							target_hash = "<empty>"
+							target_hash = "<empty->overwrite>"
 
 						elif (source_filesize == 0) and favor_nonempty_target:	# source is an empty file
-							source_hash = "<empty>"
-							target_hash = "<not empty>"
+							source_hash = "<empty->favor non-empty>"
 							remove( source )
 
 					else:							# equal filesize -> compare by MD5 hash
