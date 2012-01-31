@@ -3,6 +3,7 @@
 
 import os
 import paramiko
+from subprocess import Popen
 
 ssh_terminals = {}
 
