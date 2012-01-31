@@ -113,9 +113,10 @@ def merge(target_folder, source_folder, relative_folder="."):
 						if (source_filesize == 0) and favor_nonempty_target:
 							print '\nFavored non-empty target file. '+source+' removed.'
 						else:
-							print '\nMismatch: '+item+':\t\t '+target_hash+' in "'+target_folder+'" vs. '+source_hash+' in "'+source_folder+'"'
+							print '\nMismatch: '+item+':\t'+target_hash+' in "'+target_folder+'" vs. '+source_hash+' in "'+source_folder+'"'
 
 							move_to_filename = target
+							do_transfer = True
 
 							if overwrite_mismatching or ((target_filesize == 0) and overwrite_empty_files):
 								remove( target )
@@ -124,10 +125,21 @@ def merge(target_folder, source_folder, relative_folder="."):
 									source_hash = md5sum( source )
 								move_to_filename = target+"."+source_hash
 
-							if keep_source:
-								copy( source, move_to_filename )
-							else:
-								move( source, move_to_filename )
+								# if a target.source_hash exists, we must assume, the transfer has already taken place, but was interrupted
+								# so, if the md5 hash if target.source_hash == source_hash, we may safely remove the source and skip transfering it
+			
+								if exists(move_to_filename) and md5sum(move_to_filename) == source_hash:
+									print "Target "+move_to_filename+" already exists and is binary equal to the source. Transfer skipped."
+									do_transfer = False
+									if not keep_source:
+										remove(source)
+										print "Source removed: "+source
+
+							if do_transfer:
+								if keep_source:
+									copy( source, move_to_filename )
+								else:
+									move( source, move_to_filename )
 
 
 if __name__ == '__main__':
