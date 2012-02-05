@@ -2,8 +2,6 @@
 # -*- coding: iso-8859-15 -*-
 
 import os
-import paramiko
-from subprocess import Popen
 
 ssh_terminals = {}
 
@@ -24,6 +22,7 @@ def path( url ):
 
 
 def ssh( login, command ):
+	import paramiko
 	if not login in ssh_terminals.keys():
 		ssh_terminals[login] = paramiko.SSHClient()
 		ssh_terminals[login].set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
@@ -62,6 +61,7 @@ def exists( thing ):
 
 def scp( source, target ):
 	print "scp -Cpr "+source+" "+target
+	from subprocess import Popen
 	Popen( ["scp", "-Cpr", source, target] ).wait()
 	if not exists(source) or not exists(target):
 		raise	# should be fatal, else the file may accidently be deleted permanently
