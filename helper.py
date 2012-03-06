@@ -5,13 +5,14 @@ import sys, getopt
 from time import sleep
 from filesystem import *
 
-def parse_console_arguments(_keep_source='copy', _overwrite_mismatching='overwrite', _verbose='verbose'):
+def parse_console_arguments(_keep_source='copy', _move_differing='no-move', _overwrite_mismatching='overwrite', _verbose='verbose'):
 
-	global keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
+	global keep_source, move_differing, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
 
 	# console parameters
+	move_differing = True				# move differing source files to target folder ?
 	keep_source = False				# move or copy ?
-	overwrite_mismatching = False			# on hash mismatch: overwrite target or rename source ?
+	overwrite_mismatching = False			# overwrite target file or rename source file ?
 	verbose = False					# print a verbose line for every file, or just print dots on match ?
 
 	# hardcoded parameters
@@ -20,7 +21,7 @@ def parse_console_arguments(_keep_source='copy', _overwrite_mismatching='overwri
 
 	# Usage
 	if len(sys.argv) < 3:
-		print "Usage: md5merge.py [--"+_keep_source+"] [--"+_overwrite_mismatching+"] [--"+_verbose+"] <target> <source 1> <source 2> ..."
+		print "Usage: md5merge.py [--"+_move_differing+"] [--"+_keep_source+"] [--"+_overwrite_mismatching+"] [--"+_verbose+"] <target> <source 1> <source 2> ..."
 		sys.exit()
 
 	# make sure, all parameters are preceeding the folders
@@ -29,10 +30,12 @@ def parse_console_arguments(_keep_source='copy', _overwrite_mismatching='overwri
 		sys.exit(1)
 
 	# parse parameters
-	opts, args = getopt.getopt(sys.argv[1:], "", [_keep_source, _overwrite_mismatching, _verbose])
+	opts, args = getopt.getopt(sys.argv[1:], "", [_move_differing, _keep_source, _overwrite_mismatching, _verbose])
 
 	for o, a in opts:
-		if o == "--"+_keep_source:
+		if   o == "--"+_move_differing:
+			move_differing = False
+		elif o == "--"+_keep_source:
 			keep_source = True
 		elif o == "--"+_overwrite_mismatching:
 			overwrite_mismatching = True
@@ -46,7 +49,7 @@ def parse_console_arguments(_keep_source='copy', _overwrite_mismatching='overwri
 	target_folder = args[0]
 	source_folders = args[1:]
 
-	return target_folder, source_folders, keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
+	return target_folder, source_folders, move_differing, keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
 
 
 def ensure_target_is_valid():
@@ -63,13 +66,14 @@ def ensure_target_is_valid():
 
 def print_settings():
 
-	global keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
+	global keep_source, move_differing, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
 	global target_folder, source_folders
 
 	print ''
 	print 'About to merge the content of '+str(len(source_folders))+' folders into '+target_folder+': '+', '.join(source_folders)
 	print ''
 	print 'Settings:'
+	print '* if files differ, try to move the source file to target folder: '+str(move_differing)
 	print '* copy instead of moving files and directories: '+str(keep_source)
 	print '* overwrite target files on mismatch instead of renaming the source: '+str(overwrite_mismatching)
 	print '* print verbose messages (ignored): '+str(verbose)
