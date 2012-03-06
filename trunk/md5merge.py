@@ -14,7 +14,7 @@ def merge(target_folder, source_folder, relative_folder="."):
 
 	print relative_folder+"/"
 
-	global keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
+	global keep_source, move_differing, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target
 
 	currentfolder = os.path.join(source_folder, relative_folder)
 
@@ -39,11 +39,12 @@ def merge(target_folder, source_folder, relative_folder="."):
 					print "Fatal: Unable to merge directory into broken link '"+target+"'"
 					sys.exit(1)
 
-				print "Creating missing folder "+target+" ... "
-				mkdir( target )
+				if move_differing:
+					print "Creating missing folder "+target+" ... "
+					mkdir( target )
 
 			merge( target_folder, source_folder, relative_folder+"/"+item )	# recurse into subfolder
-			if not keep_source:
+			if move_differing and (not keep_source):
 				print 'Removing remaining empty directory "'+source+'" ...'
 				rmdir( source )
 
@@ -51,10 +52,11 @@ def merge(target_folder, source_folder, relative_folder="."):
 
 		elif not (exists( target ) or islink( target )):			## source is a file or a link, but target does not exist anyway
 											## second statement exludes broken links, that are handled below
-			if keep_source:
-				copy( source, target )
-			else:
-				move( source, target )
+			if move_differing:
+				if keep_source:
+					copy( source, target )
+				else:
+					move( source, target )
 		else:									# source is file or link, and target exists
 
 			if islink( source ):							## source is a link
@@ -70,10 +72,11 @@ def merge(target_folder, source_folder, relative_folder="."):
 						print "Mismatching symbolic links: "
 						print "\t"+source+": "+source_target
 						print "\t"+target+": "+target_target
-						if not keep_source:
-							move( source, target+".merged_mismatching_link" )
-						else:
-							copy( source, target+".merged_mismatching_link" )
+						if move_differing:
+							if not keep_source:
+								move( source, target+".merged_mismatching_link" )
+							else:
+								copy( source, target+".merged_mismatching_link" )
 
 				elif isfile( target ):						### target is a regular file -> FATAL, exit
 					print "FATAL: Unable to merge link and regular file '"+target+"'"
@@ -135,7 +138,7 @@ def merge(target_folder, source_folder, relative_folder="."):
 										remove(source)
 										print "Source removed: "+source
 
-							if do_transfer:
+							if move_differing and do_transfer:
 								if keep_source:
 									copy( source, move_to_filename )
 								else:
@@ -144,7 +147,7 @@ def merge(target_folder, source_folder, relative_folder="."):
 
 if __name__ == '__main__':
 
-	target_folder, source_folders, keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target = parse_console_arguments("copy", "overwrite", "verbose")
+	target_folder, source_folders, move_differing, keep_source, overwrite_mismatching, verbose, overwrite_empty_files, favor_nonempty_target = parse_console_arguments()
 
 	ensure_target_is_valid()
 	print_settings()
