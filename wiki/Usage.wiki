@@ -7,7 +7,7 @@ Requires Python being installed. Tested with python 2.6.
 Open a console/shell/terminal and type
 
 {{{
-     md5merge /media/HD1 /media/HD2
+     smerge /media/HD1 /media/HD2
 }}}
 
 This will merge all files in /media/HD2/ into /media/HD1/. Identical files will be deleted in /media/HD2, differing files will be renamed to {filename}.{md5 hash} and moved to the corresponding folder in /media/HD1. Symbolic links will also be moved.
