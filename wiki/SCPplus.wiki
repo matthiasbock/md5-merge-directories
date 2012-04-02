@@ -10,6 +10,7 @@ Additionally provides the following functions:
  * *scp.py --(un)pack*: compress content before transfer, unpack on the remote machine
  * *scp.py --continue* an interrupted transfer
  * *scp.py --hash*: compare files after transfer (by MD5 hash)
+ * *scp.py --direct*: tell host1 to directly transfer to host2
  * *smv.py*: secure move = delete files after secure copying
 
 
