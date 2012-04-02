@@ -1,4 +1,4 @@
- * [Usage Usage]
- * [SSH]
- * [SSH_Usage SSH usage]
- * [SCPplus SCP+]
+ * [Usage smerge]
+ * [SSH_Usage smerge over ssh]
+  * [ssh]
+ * [SCPplus scp+]
