@@ -50,13 +50,16 @@ unpacked_source = source
 unpacked_target = target
 
 
+# write access to target ?
+
+
 # Pack the source
 
 if args['--pack']:
 	p = path(source).split('/')
 	folder = '/'.join(p[:len(p)-1])
 	filename = p[len(p)-1]
-	tar_cmd = 'tar --directory "'+folder+'" --checkpoint=1000 --checkpoint-action=exec="du -h \''+filename+'.tar.bz\'" -cjf "'+filename+'.tar.bz" --preserve-permissions --atime-preserve --remove-files "'+filename+'"'
+	tar_cmd = 'tar --directory "'+folder+'" --checkpoint=1000 --checkpoint-action=exec="du -h \''+filename+'.tar.bz\'" -cjf "'+filename+'.tar.bz" --preserve-permissions --atime-preserve "'+filename+'"' #--remove-files
 	print tar_cmd
 	if is_remote(source):
 		ssh(login(source), tar_cmd)
@@ -68,7 +71,6 @@ if args['--pack']:
 
 # Main transfer
 
-print 'scp "'+source+'" "'+target+'"'
 scp(source, target)
 
 
