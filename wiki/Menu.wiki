@@ -1,4 +1,4 @@
  * [Usage smerge]
  * [SSH_Usage smerge over ssh]
-  * [ssh]
+  * [SSH ssh]
  * [SCPplus scp+]
