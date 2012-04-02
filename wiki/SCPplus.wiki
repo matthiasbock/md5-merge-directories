@@ -6,6 +6,6 @@ SCP+ is a package of extensions for SCP, written in Python.
 Additionally provides the following functions:
 
  * *tar & compress* a folder before transfer, unpack archive on the remote machine after transfer
- * *scp --continue* an interrupted transfer
- * *smv*: secure move = delete files after secure copying
- * *smv --hash*: compare file content before deletion (by MD5 hash)
+ * *scp.py --continue* an interrupted transfer
+ * *smv.py*: secure move = delete files after secure copying
+ * *smv.py --hash*: compare file content before deletion (by MD5 hash)
