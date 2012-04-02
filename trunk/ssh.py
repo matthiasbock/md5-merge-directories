@@ -60,7 +60,7 @@ def exists( thing ):
 	return ssh( login(thing), "if [ -e '"+path(thing)+"' ]; then echo true; else echo false; fi" )=='true'
 
 def scp( source, target ):
-	print "scp -Cp "+source+" "+target
+#	print "scp -Cpr "+source+" "+target
 	from subprocess import Popen
 	Popen( ["scp", "-Cpr", source, target] ).wait()
 	if not exists(source) or not exists(target):

@@ -1,3 +1,16 @@
-#!/bin/bash
+#!/usr/bin/python2.6
+# -*- coding: iso-8859-15 -*-
 
-scp.py --pack --continue --unpack --hash --remove-equal $@
+from sys import argv
+from subprocess import Popen
+from shlex import split
+
+me = 0
+for arg in argv:
+	if arg[-3:].lower() == 'smv':
+		me = argv.index(arg)
+
+scp_plus = 'scp+ --pack --continue --unpack --hash --remove-equal "'+'" "'.join(argv[me+1:])+'"'
+print scp_plus
+Popen(split(scp_plus)).wait()
+
