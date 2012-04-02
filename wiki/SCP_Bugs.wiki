@@ -1,0 +1,7 @@
+#summary One-sentence summary of this page.
+
+= bugs =
+
+== scp space bug ==
+ * spaces in paths are recognized in the first source, but not in the target argument
+ * must be escaped in target, must not be escaped in source
