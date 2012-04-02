@@ -4,34 +4,33 @@
 from sys import argv, exit
 from subprocess import Popen
 from shlex import split
-from ssh import *
+from filesystem import *
+from ssh import is_remote, path, login, scp
 
 
 # Console argument parsing
 
+me = 0
+for arg in argv:
+	if 'scp+' in arg.lower():
+		me = argv.index(arg)
 args = {'--pack':False,
 	'--unpack':False,
 	'--continue':False,
 	'--hash':False,
 	'--remove-equal':False }
-first = 0
 source = ""
 target = ""
-for arg in argv:
+for arg in argv[me+1:]:
 	a = arg.lower()
-	if 'scp.py' in a:
-		first = argv.index(arg)
-	elif '/' in a:
+	if a in args.keys():
+		args[a] = True
+		del arg
+	else:
 		if source == '':
 			source = arg
 		else:
 			target = arg
-	else:
-		for x in args.keys():
-			if a == x:
-				args[x] = True
-				del arg
-first += 1
 
 
 # Checking arguments ...
@@ -45,8 +44,8 @@ if target[len(target)-1] == '/':	# path end with / : add source's name (the subf
 	d = path(source).split('/')
 	name = d[len(d)-1]
 	target += name
-print 'Source: '+source
-print 'Target: '+target
+print '\tSource: '+source
+print '\tTarget: '+target
 unpacked_source = source
 unpacked_target = target
 
@@ -54,9 +53,10 @@ unpacked_target = target
 # Pack the source
 
 if args['--pack']:
-	print 'Packing source ...'
-	p = path(source)
-	tar_cmd = 'tar -c  -jf "'+p+'.tar.bz" "'+p+'"' #--remove-files
+	p = path(source).split('/')
+	folder = '/'.join(p[:len(p)-1])
+	filename = p[len(p)-1]
+	tar_cmd = 'tar --directory "'+folder+'" --checkpoint=1000 --checkpoint-action=exec="du -h \''+filename+'.tar.bz\'" -cjf "'+filename+'.tar.bz" --preserve-permissions --atime-preserve --remove-files "'+filename+'"'
 	print tar_cmd
 	if is_remote(source):
 		ssh(login(source), tar_cmd)
@@ -65,23 +65,25 @@ if args['--pack']:
 	source += '.tar.bz'
 	target += '.tar.bz'
 
-exit()
 
-print 'Transfering ...'
+# Main transfer
+
+print 'scp "'+source+'" "'+target+'"'
 scp(source, target)
 
-"""	if source is local:
-		rm folder.tar.bz
-	else:
-		ssh source rm folder.tar.bz
+
+# Unpack the tar
 
 if args['--unpack']:
-	if host 2 is local:
-		Popen tar unpack
-		rm tar
+	p = path(target).split('/')
+	folder = '/'.join(p[:len(p)-1])
+	filename = p[len(p)-1]
+	tar_cmd = 'tar --directory "'+folder+'" -xjf "'+filename+'"'
+	print tar_cmd
+	if is_remote(target):
+		ssh(login(target), tar_cmd)
 	else:
-		ssh target tar -xjf folder.tar.bz
-		ssh target rm folder.tar.bz
+		Popen(split(tar_cmd)).wait()
 	source = unpacked_source
 	target = unpacked_target
-"""
+
