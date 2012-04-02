@@ -7,26 +7,26 @@
 SCP+ is a package of extensions for SCP, written in Python.
 Additionally provides the following functions:
 
- * *scp.py --tar.bz*: compress content before transfer, unpack on the remote machine after transfer
- * *scp.py --hash*: compare files after transfer (by MD5 hash)
+ * *scp.py --(un)pack*: compress content before transfer, unpack on the remote machine
  * *scp.py --continue* an interrupted transfer
+ * *scp.py --hash*: compare files after transfer (by MD5 hash)
  * *smv.py*: secure move = delete files after secure copying
 
 
-== --tar.bz ==
+= scp.py =
+{{{
+ $ scp -C ...
+}}}
 
- # pack
- # transfer
- # unpack
+== --pack ==
+ # source exists?
+ # yes: tar --update --remove-files
+ # no: tar --create --remove-files
 
 
-== --hash ==
-
- # list all files
- # run host1 md5sum files
- # run host2 md5sum files
- # print list
- # if _--move_ argument is provided to scp.py (as done by smv.py), delete equal files
+== --unpack ==
+ * unpack after transfer
+ * remove tar if successfull
 
 
 == --continue ==
@@ -36,4 +36,27 @@ Additionally provides the following functions:
  # if host2 file > host1 file: error
  # elif equal: md5sum & compare
  # elif host2 file < host1 file: dd if=host2 bs=host1 size count=1 | md5sum & compare
+ # transfer remaining & concatenate ...
  # transfer unique files
+
+
+== --pack AND --continue ==
+ # if host2 tar file > host1 tar file: error
+ # elif equal: md5sum & compare
+ # elif host2 file < host1 file: dd if=host2 bs=host1 size count=1 | md5sum & compare
+ # transfer remaining & concatenate ...
+
+
+== --hash ==
+
+ # list all files
+ # run host1 md5sum files
+ # run host2 md5sum files
+ # print list
+ # if additionally _--move_ argument is provided to scp.py (as done by smv.py), delete equal files
+
+
+= smv.py =
+{{{
+ $ scp.py --pack --unpack --continue --hash --remove-equal ...
+}}}
