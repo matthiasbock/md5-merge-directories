@@ -1,47 +1,87 @@
 #!/usr/bin/python2.6
 # -*- coding: iso-8859-15 -*-
 
-from sys import argv
+from sys import argv, exit
 from subprocess import Popen
+from shlex import split
+from ssh import *
 
-Continue = False
-TarBz = False
+
+# Console argument parsing
+
+args = {'--pack':False,
+	'--unpack':False,
+	'--continue':False,
+	'--hash':False,
+	'--remove-equal':False }
 first = 0
-host1 = ""
-host2 = ""
+source = ""
+target = ""
 for arg in argv:
 	a = arg.lower()
 	if 'scp.py' in a:
 		first = argv.index(arg)
-	elif ':/' in a:
-		if host1 == '':
-			host1 = arg
+	elif '/' in a:
+		if source == '':
+			source = arg
 		else:
-			host2 = arg
-	elif a == '--tar.bz':
-		TarBz = True
-		del arg
-	elif a == '--continue':
-		Continue = True
-		del arg
+			target = arg
+	else:
+		for x in args.keys():
+			if a == x:
+				args[x] = True
+				del arg
 first += 1
 
-if TarBz:
-	if host1 is local:
-		Popen tar -c --remove-files -jf folder.tar.bz
+
+# Checking arguments ...
+
+if source == "" or target == "":
+	print "insufficient arguments"
+	exit()
+if source[len(source)-1] == '/':	# path ends with / : remove it (the parent folder is meant)
+	source = source[:-1]
+if target[len(target)-1] == '/':	# path end with / : add source's name (the subfolder is meant)
+	d = path(source).split('/')
+	name = d[len(d)-1]
+	target += name
+print 'Source: '+source
+print 'Target: '+target
+unpacked_source = source
+unpacked_target = target
+
+
+# Pack the source
+
+if args['--pack']:
+	print 'Packing source ...'
+	p = path(source)
+	tar_cmd = 'tar -c  -jf "'+p+'.tar.bz" "'+p+'"' #--remove-files
+	print tar_cmd
+	if is_remote(source):
+		ssh(login(source), tar_cmd)
 	else:
-		ssh host1 tar...
-	scp host1:/folder.tar.bz to host2
-	if host1 is local:
+		Popen(split(tar_cmd)).wait()
+	source += '.tar.bz'
+	target += '.tar.bz'
+
+exit()
+
+print 'Transfering ...'
+scp(source, target)
+
+"""	if source is local:
 		rm folder.tar.bz
 	else:
-		ssh host1 rm folder.tar.bz
+		ssh source rm folder.tar.bz
+
+if args['--unpack']:
 	if host 2 is local:
 		Popen tar unpack
 		rm tar
 	else:
-		ssh host2 tar -xjf folder.tar.bz
-		ssh host2 rm folder.tar.bz
-else:
-	print "Operation not yet supported."
-
+		ssh target tar -xjf folder.tar.bz
+		ssh target rm folder.tar.bz
+	source = unpacked_source
+	target = unpacked_target
+"""
