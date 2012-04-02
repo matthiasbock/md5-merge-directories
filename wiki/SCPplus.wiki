@@ -11,3 +11,29 @@ Additionally provides the following functions:
  * *scp.py --hash*: compare files after transfer (by MD5 hash)
  * *scp.py --continue* an interrupted transfer
  * *smv.py*: secure move = delete files after secure copying
+
+
+== --tar.bz ==
+
+ # pack
+ # transfer
+ # unpack
+
+
+== --hash ==
+
+ # list all files
+ # run host1 md5sum files
+ # run host2 md5sum files
+ # print list
+ # if _--move_ argument is provided to scp.py (as done by smv.py), delete equal files
+
+
+== --continue ==
+ # list local files
+ # list remote files
+ # list conflicting files
+ # if host2 file > host1 file: error
+ # elif equal: md5sum & compare
+ # elif host2 file < host1 file: dd if=host2 bs=host1 size count=1 | md5sum & compare
+ # transfer unique files
