@@ -7,14 +7,14 @@
 SCP+ is a package of extensions for SCP, written in Python.
 Additionally provides the following functions:
 
- * *scp.py --(un)pack*: compress content before transfer, unpack on the remote machine
- * *scp.py --continue* an interrupted transfer
- * *scp.py --hash*: compare files after transfer (by MD5 hash)
- * *scp.py --direct*: tell host1 to directly transfer to host2
- * *smv.py*: secure move = delete files after secure copying
+ * *--(un)pack*: compress content before transfer, unpack on the remote machine
+ * *--continue* an interrupted transfer
+ * *--hash*: compare files after transfer (by MD5 hash)
+ * *--direct*: tell host1 to directly transfer to host2
+ * *smv*: secure move = delete files after secure copying
 
 
-= scp.py =
+= scp+ =
 {{{
  $ scp -C ...
 }}}
@@ -57,7 +57,7 @@ Additionally provides the following functions:
  # if additionally _--move_ argument is provided to scp.py (as done by smv.py), delete equal files
 
 
-= smv.py =
+= smv =
 {{{
- $ scp.py --pack --unpack --continue --hash --remove-equal ...
+ $ scp+ --pack --unpack --continue --hash --remove-equal ...
 }}}
