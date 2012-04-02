@@ -1,6 +1,6 @@
-#summary One-sentence summary of this page.
+#summary scp bugs
 
-= bugs =
+= scp bugs =
 
 == scp space bug ==
  * spaces in paths are recognized in the first source, but not in the target argument
