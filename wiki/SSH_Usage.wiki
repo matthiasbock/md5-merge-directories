@@ -1,6 +1,6 @@
 #summary SSH usage
 
-= md5merge over SSH =
+= smerge over SSH =
 
 Merging files over SSH uses the same command as without, only the parameters must be specified correctly:
 {{{
