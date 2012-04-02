@@ -2,8 +2,6 @@
 
 = md5merge over SSH =
 
-*--- not yet enabled ---*
-
 Merging files over SSH uses the same command as without, only the parameters must be specified correctly:
 {{{
      md5merge user@server1:/media/data/ root@server2:/media/data/
