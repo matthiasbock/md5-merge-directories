@@ -5,7 +5,8 @@ from sys import argv, exit
 from subprocess import Popen
 from shlex import split
 from filesystem import *
-from ssh import is_remote, path, login, scp
+from ssh import is_remote, path, login, ssh
+from scp import scp
 
 
 # Console argument parsing
@@ -60,10 +61,10 @@ if args['--pack']:
 	folder = '/'.join(p[:len(p)-1])
 	filename = p[len(p)-1]
 	tar_cmd = 'tar --directory "'+folder+'" --checkpoint=1000 --checkpoint-action=exec="du -h \''+filename+'.tar.bz\'" -cjf "'+filename+'.tar.bz" --preserve-permissions --atime-preserve "'+filename+'"' #--remove-files
-	print tar_cmd
 	if is_remote(source):
-		ssh(login(source), tar_cmd)
+		ssh(login(source), tar_cmd, debug=True)
 	else:
+		print tar_cmd
 		Popen(split(tar_cmd)).wait()
 	source += '.tar.bz'
 	target += '.tar.bz'
@@ -77,15 +78,16 @@ scp(source, target)
 # Unpack the tar
 
 if args['--unpack']:
-	p = path(target).split('/')
+	filename = path(target)
+	p = filename.split('/')
 	folder = '/'.join(p[:len(p)-1])
-	filename = p[len(p)-1]
-	tar_cmd = 'tar --directory "'+folder+'" -xjf "'+filename+'"'
-	print tar_cmd
+	tar_cmd = 'tar --directory "'+folder+'" -xvjf "'+filename+'"'
 	if is_remote(target):
-		ssh(login(target), tar_cmd)
+		ssh(login(target), tar_cmd, debug=True)
 	else:
+		print tar_cmd
 		Popen(split(tar_cmd)).wait()
+	remove(target)
 	source = unpacked_source
 	target = unpacked_target
 

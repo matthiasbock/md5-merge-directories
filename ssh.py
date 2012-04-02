@@ -5,17 +5,19 @@ import os
 
 ssh_terminals = {}
 
-def ssh( login, command ):
+def ssh( login, command, debug=False ):
 	import paramiko
 	if not login in ssh_terminals.keys():
 		ssh_terminals[login] = paramiko.SSHClient()
 		ssh_terminals[login].set_missing_host_key_policy(paramiko.AutoAddPolicy()) 
 		s = login.split('@')
 		ssh_terminals[login].connect(s[1], username=s[0])
-
+	if debug:
+		print command
 	stdin, stdout, stderr = ssh_terminals[login].exec_command(command)
 	result = (''.join(stdout.readlines())).strip()
-#	print result
+	if debug:
+		print result
 	return result
 
 def is_remote( url ):
