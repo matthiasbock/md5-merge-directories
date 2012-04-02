@@ -16,4 +16,4 @@ Using smerge over SSH allows for merging tons of data across a network or the in
 
 == Public Key Authentication ==
 
-Public keys are really necessary, if you plan to use md5merge over SSH. Else, for every single MD5 request, a passwort login prompt will show up, which will get annoying, trust me.
+Setting up public key authentication is necessary, if you plan to use smerge over SSH. Else many login prompts will show up.
