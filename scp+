@@ -5,7 +5,7 @@ from sys import argv, exit
 from subprocess import Popen
 from shlex import split
 from filesystem import *
-from ssh import is_remote, path, login, ssh
+from ssh import ssh, login, path, is_local, is_remote
 from scp import scp
 
 
@@ -32,7 +32,7 @@ for arg in argv[me+1:]:
 			source = arg
 		else:
 			target = arg
-
+print ''
 
 # Checking arguments ...
 
@@ -45,10 +45,15 @@ if target[len(target)-1] == '/':	# path end with / : add source's name (the subf
 	d = path(source).split('/')
 	name = d[len(d)-1]
 	target += name
-print '\tSource: '+source
-print '\tTarget: '+target
+if is_local(source) and source[0] != '/':
+	source = './'+source
+if is_local(target) and target[0] != '/':
+	target = './'+target
+print 'Source: '+source
+print 'Target: '+target
 unpacked_source = source
 unpacked_target = target
+print ''
 
 
 # write access to target ?
@@ -57,37 +62,61 @@ unpacked_target = target
 # Pack the source
 
 if args['--pack']:
+	print 'Packing ...'
 	p = path(source).split('/')
 	folder = '/'.join(p[:len(p)-1])
 	filename = p[len(p)-1]
 	tar_cmd = 'tar --directory "'+folder+'" --checkpoint=1000 --checkpoint-action=exec="du -h \''+filename+'.tar.bz\'" -cjf "'+filename+'.tar.bz" --preserve-permissions --atime-preserve "'+filename+'"' #--remove-files
 	if is_remote(source):
-		ssh(login(source), tar_cmd, debug=True)
+		ssh(login(source), tar_cmd, debug=False)
 	else:
-		print tar_cmd
+#		print tar_cmd
 		Popen(split(tar_cmd)).wait()
 	source += '.tar.bz'
 	target += '.tar.bz'
+	print ''
 
 
 # Main transfer
 
 scp(source, target)
+print ''
+
+# success?
 
 
-# Unpack the tar
+# Discard the source archive
+
+if args['--pack']:
+	remove(source) # .tar.bz
+
+
+# Unpack the target archive
 
 if args['--unpack']:
+	print 'Unpacking ...'
 	filename = path(target)
 	p = filename.split('/')
 	folder = '/'.join(p[:len(p)-1])
 	tar_cmd = 'tar --directory "'+folder+'" -xvjf "'+filename+'"'
 	if is_remote(target):
-		ssh(login(target), tar_cmd, debug=True)
+		ssh(login(target), tar_cmd, debug=False)
 	else:
-		print tar_cmd
+#		print tar_cmd
 		Popen(split(tar_cmd)).wait()
 	remove(target)
 	source = unpacked_source
 	target = unpacked_target
+	print ''
+
+
+# Hash
+
+#if args['--hash']:
+#	for sourcefilename in source:
+#		md5sum(sourcefilename)
+#		md5sum(targetfilename)
+#		print
+#		if equal and remove-equal:
+#			remove(sourcefilename)
 
