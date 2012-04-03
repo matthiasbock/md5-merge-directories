@@ -66,7 +66,7 @@ if args['--pack']:
 	p = path(source).split('/')
 	folder = '/'.join(p[:len(p)-1])
 	filename = p[len(p)-1]
-	tar_cmd = 'tar --directory "'+folder+'" --checkpoint=1000 --checkpoint-action=exec="du -h \''+filename+'.tar.bz\'" -cjf "'+filename+'.tar.bz" --preserve-permissions --atime-preserve "'+filename+'"' #--remove-files
+	tar_cmd = 'tar --directory "'+folder+'" --checkpoint=10000 --checkpoint-action=exec="du -h \''+filename+'.tar.bz\'" -cjf "'+filename+'.tar.bz" --preserve-permissions "'+filename+'"' #--remove-files
 	if is_remote(source):
 		ssh(login(source), tar_cmd, debug=False)
 	else:
@@ -79,6 +79,7 @@ if args['--pack']:
 
 # Main transfer
 
+print 'Transfering ...'
 scp(source, target)
 print ''
 
@@ -98,7 +99,7 @@ if args['--unpack']:
 	filename = path(target)
 	p = filename.split('/')
 	folder = '/'.join(p[:len(p)-1])
-	tar_cmd = 'tar --directory "'+folder+'" -xvjf "'+filename+'"'
+	tar_cmd = 'tar --directory "'+folder+'" -xjf "'+filename+'"'
 	if is_remote(target):
 		ssh(login(target), tar_cmd, debug=False)
 	else:
