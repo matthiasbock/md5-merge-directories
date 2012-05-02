@@ -1,0 +1,10 @@
+#summary Secure Move
+
+= Secure Move =
+
+*smv*: secure move = delete successfully transfered files
+
+== the only difference: on scp+ transfer completed ... ==
+
+ # recheck target file integrity
+ # delete source file
