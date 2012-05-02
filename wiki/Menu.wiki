@@ -1,6 +1,4 @@
- * [Usage smerge]
- * [SSH_Usage smerge over ssh]
-  * [SSH ssh]
  * [SCPplus scp+]
-  * [SCP_Bugs scp bugs]
  * [smv]
+ * [smerge]
+ * [Bugs]
