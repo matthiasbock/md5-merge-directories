@@ -1,5 +1,9 @@
 #summary known issues
 
+previous versions were working, but currently it doesn't ...
+
+contributors welcome!
+
 == scp space bug ==
  * spaces in paths are recognized in the first source, but not in the target argument
  * must be escaped in target, must not be escaped in source
