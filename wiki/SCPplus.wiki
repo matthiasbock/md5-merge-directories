@@ -23,12 +23,12 @@ Additionally provides the following features:
    * partial content matches => continue transfer
    * different content => ask: overwrite differing file?
 
-== Continue interrupted transfers ==
- # list local files
- # list remote files
- # list conflicting files
- # if host2 file > host1 file: error
- # elif equal: md5sum & compare
- # elif host2 file < host1 file: dd if=host2 bs=host1 size count=1 | md5sum & compare
- # transfer remaining & concatenate ...
- # transfer unique files
+== Continue transfer ==
+ * if source and target local:
+  * directly append to target file
+ * if one or both remote:
+  * check for previously transfered partial content on target machine
+   * concatenate
+  * extract missing partial content from source file
+  * transfer it
+  * concatenate partial files on target machine
