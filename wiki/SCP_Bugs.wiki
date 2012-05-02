@@ -1,8 +1,0 @@
-#summary scp bugs
-
-= scp bugs =
-
-== scp space bug ==
- * spaces in paths are recognized in the first source, but not in the target argument
- * must be escaped in target, must not be escaped in source
- * workaround included in [http://code.google.com/p/md5-merge-directories/source/browse/trunk/scp.py scp.py]
