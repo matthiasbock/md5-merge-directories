@@ -8,7 +8,6 @@ Additionally provides the following features:
  * *--tbz*: tar and bzip2 files before transfer, unpack on the remote machine after successfull transfer
  * continue interrupted transfers
  * hash to compare source and target file
- * *smv*: secure move = delete successfully transfered files
  * tell hosts to directly transfer to one another (requires source host to have scp+ installed)
 
 == Single file tranfer scenarios ==
@@ -33,10 +32,3 @@ Additionally provides the following features:
  # elif host2 file < host1 file: dd if=host2 bs=host1 size count=1 | md5sum & compare
  # transfer remaining & concatenate ...
  # transfer unique files
-
-= smv =
-== Transfer completed ==
-
-Recheck target file integrity.
-
-if integrity and *smv*: delete source file
