@@ -33,3 +33,7 @@ Additionally provides the following features:
    * discard already transfered content
   * transfer missing partial content
   * concatenate partial content on target machine
+
+== Partial content files ==
+
+Partial content is filename+'.partial-'+starting byte, where first byte is 0.
