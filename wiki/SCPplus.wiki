@@ -1,36 +1,30 @@
 #summary SCP+
 
-= SCP+ =
-
-*Status: Planning; some unstable Beta code ...*
+= scp+ =
 
 SCP+ is a package of extensions for SCP, written in Python.
-Additionally provides the following functions:
+Additionally provides the following features:
 
- * *--(un)pack*: compress content before transfer, unpack on the remote machine
- * *--continue* an interrupted transfer
- * *--hash*: compare files after transfer (by MD5 hash)
- * *--direct*: tell host1 to directly transfer to host2
- * *smv*: secure move = delete files after secure copying
+ * *--tbz*: tar and bzip2 files before transfer, unpack on the remote machine after successfull transfer
+ * continue interrupted transfers
+ * hash to compare source and target file
+ * *smv*: secure move = delete successfully transfered files
+ * tell hosts to directly transfer to one another (requires source host to have scp+ installed)
 
+== Single file tranfer scenarios ==
+ * target file doesn't exist => start transfer
+ * target file exists
+  * same size
+   * equal content => transfer completed
+   * different content => ask: overwrite differing file?
+  * bigger
+   * partial content matches => transfer (is more than) completed
+   * different content => ask: overwrite differing file?
+  * smaller
+   * partial content matches => continue transfer
+   * different content => ask: overwrite differing file?
 
-= scp+ =
-{{{
- $ scp -C ...
-}}}
-
-== --pack ==
- # source exists?
- # yes: tar --update --remove-files
- # no: tar --create --remove-files
-
-
-== --unpack ==
- * unpack after transfer
- * remove tar if successfull
-
-
-== --continue ==
+== Continue interrupted transfers ==
  # list local files
  # list remote files
  # list conflicting files
@@ -40,24 +34,9 @@ Additionally provides the following functions:
  # transfer remaining & concatenate ...
  # transfer unique files
 
-
-== --pack AND --continue ==
- # if host2 tar file > host1 tar file: error
- # elif equal: md5sum & compare
- # elif host2 file < host1 file: dd if=host2 bs=host1 size count=1 | md5sum & compare
- # transfer remaining & concatenate ...
-
-
-== --hash ==
-
- # list all files
- # run host1 md5sum files
- # run host2 md5sum files
- # print list
- # if additionally _--move_ argument is provided to scp.py (as done by smv.py), delete equal files
-
-
 = smv =
-{{{
- $ scp+ --pack --unpack --continue --hash --remove-equal ...
-}}}
+== Transfer completed ==
+
+Recheck target file integrity.
+
+if integrity and *smv*: delete source file
