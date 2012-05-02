@@ -1,6 +1,6 @@
 #summary SCP+
 
-= scp+ =
+= Secure Copy Plus =
 
 SCP+ is a package of extensions for SCP, written in Python.
 Additionally provides the following features:
