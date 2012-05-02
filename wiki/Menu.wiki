@@ -1,4 +1,4 @@
  * [SCPplus scp+]
  * [smv]
  * [smerge]
- * [Bugs]
+ * [bugs]
