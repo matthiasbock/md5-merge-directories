@@ -7,4 +7,4 @@
 == the only difference: on scp+ transfer completed ... ==
 
  # recheck target file integrity
- # delete source file
+ # if identical, delete source file
