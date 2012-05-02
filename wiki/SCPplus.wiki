@@ -30,5 +30,6 @@ Additionally provides the following features:
   * check for previously transfered partial content on target machine
    * concatenate
   * extract missing partial content from source file
-  * transfer it
-  * concatenate partial files on target machine
+   * discard already transfered content
+  * transfer missing partial content
+  * concatenate partial content on target machine
