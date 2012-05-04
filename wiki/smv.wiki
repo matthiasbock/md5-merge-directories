@@ -4,4 +4,4 @@
 
 == the only difference to scp+ ==
 
-after successfull transfer completion: delete source file
+After successfull transfer completion: delete source file.
