@@ -2,7 +2,6 @@
 
 = Secure Move =
 
-== the only difference to scp+: on transfer completed ... ==
+== the only difference to scp+ ==
 
- # recheck target file integrity
- # if identical, delete source file
+after successfull transfer completion: delete source file
