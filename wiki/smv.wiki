@@ -1,7 +1,6 @@
 #summary Secure Move
 
 = Secure Move =
-
-== the only difference to scp+ ==
+== difference to scp+ ==
 
 After successfull transfer completion: delete source file.
