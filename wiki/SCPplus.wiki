@@ -9,6 +9,7 @@ Additionally provides the following features:
  * tar folders and bzip2 files before transfer, unpack on the remote machine
  * continue interrupted transfers
 
+== Code Flow ==
 http://md5-merge-directories.googlecode.com/svn/trunk/doc/scp_1j7g9l9t.png
 http://bubbl.us/view/f34e8/1cef7c/99oaI.sWpM0MY/
 
