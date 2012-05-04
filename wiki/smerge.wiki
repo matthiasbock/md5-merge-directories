@@ -2,9 +2,8 @@
 
 = Secure Merge =
 
-== the only difference to scp+: whenever a different target file exists ... ==
- # keep the target file
- # append ".md5 hash" to filename and transfer to this target filename instead
+== the only difference to scp+ ==
+Whenever a different target file exists, append ".md5 hash" to filename and transfer to this target filename instead.
 
 == Usage ==
 
