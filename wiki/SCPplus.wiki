@@ -10,6 +10,8 @@ Additionally provides the following features:
  * hash to compare source and target file
  * tell hosts to directly transfer to one another (requires source host to have scp+ installed)
 
+http://bubbl.us/view/f34e8/1cef7c/99oaI.sWpM0MY/
+
 == Single file tranfer scenarios ==
  * target file doesn't exist => start transfer
  * target file exists
