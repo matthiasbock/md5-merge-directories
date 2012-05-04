@@ -1,0 +1,10 @@
+#summary Codeflow
+
+= Codeflow =
+
+http://md5-merge-directories.googlecode.com/svn/trunk/doc/scp_1j7gau91.png
+http://bubbl.us/view/f34e8/1cef7c/99oaI.sWpM0MY/
+
+= Partial content files =
+
+Partial content is filename+'.partial-'+starting byte, where first byte is 0.
