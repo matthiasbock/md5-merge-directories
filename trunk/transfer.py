@@ -1,9 +1,8 @@
 #!/usr/bin/python2.6
 # -*- coding: iso-8859-15 -*-
 
-from filesystem import exists, isdir
-
 def scp( source, target, debug=False ):
+	from fs import exists, isdir
 	from subprocess import Popen
 	from shlex import split
 
