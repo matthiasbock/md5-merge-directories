@@ -1,5 +1,1 @@
-#!/bin/bash
-# -*- coding: iso-8859-15 -*-
-
-scp+ --smerge "$1" "$2" "$3"
-
+scp+.py
