@@ -17,6 +17,5 @@ def md5sum( filename, end=None ):
 	else:
 		buffersize = ggT( 1024**2, end )
 		count = end/buffersize
-		print str(count)+' * '+str(buffersize)+' = '+str(end)
 		return run('dd if="'+filename+'" bs='+str(buffersize)+' count='+str(count)+' | md5sum')[:32]
 
