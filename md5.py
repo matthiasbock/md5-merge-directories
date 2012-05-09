@@ -12,7 +12,7 @@ def largefileMD5( filename ):
 
 def md5sum( filename, end=None ):
 	from utils import run, ggT
-	if end is None:
+	if end is None or end == 0:
 		return run('md5sum "'+filename+'"')[:32]
 	else:
 		buffersize = ggT( 1024**2, end )

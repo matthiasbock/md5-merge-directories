@@ -64,7 +64,7 @@ def getsize(filename):
 	return int(ssh(login(filename), "stat -c %s '"+path(filename)+"'"))
 
 def md5sum(filename, end=None):
-	if end is None:
+	if end is None or end == 0:
 		return ssh(login(filename), 'md5sum "'+path(filename)+'"')[:32]
 	else:
 		from utils import ggT

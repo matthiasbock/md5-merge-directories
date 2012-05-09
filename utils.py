@@ -16,7 +16,7 @@ def run(cmd):
 	from subprocess import Popen, PIPE
 	from shlex import split
 
-	print cmd
+#	print cmd
 
 	pipes = cmd.split('|')
 	if len(pipes) == 1:

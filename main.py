@@ -5,21 +5,19 @@ from constants import *
 from fs import *
 from os.path import join
 from utils import format
+from transfer import scp
 from threading import Thread
+import settings as x
 
 def hash_both(source, target):
 	def HashSource():
-		global sourcehash
-		sourcehash = md5sum(source)
-		print '\t'+source+': '+sourcehash
-
+		x.sourcehash = md5sum(source)
+		print '\t'+source+': '+x.sourcehash
 	thread1 = Thread( target=HashSource )
 
 	def HashTarget():
-		global targethash
-		targethash = md5sum(target)
-		print '\t'+target+': '+targethash
-
+		x.targethash = md5sum(target)
+		print '\t'+target+': '+x.targethash
 	thread2 = Thread( target=HashTarget )
 
 	thread1.start()
@@ -27,37 +25,40 @@ def hash_both(source, target):
 	thread1.join()
 	thread2.join()
 
-	return sourcehash, targethash
-
 def transfer_to_target(source, target):
-	from transfer import scp
 
 	print '--- '+source+' ---'
 
-	global behavior, corresponding_target
 	corresponding_target = join(target, fname(source))
 	print '\tTarget: '+corresponding_target
 
 	if isdir(source):
 		print '\tSource is a directory. Entering ...'
 		for item in listdir(source):
-			transfer_to_target(join(source, item), join(corresponding_target, item))
+			transfer_to_target(join(source, item), corresponding_target)
 		print '\tLeaving '+source+' ...'
+		if x.behavior in [smv, smerge]:
+			try:
+				rmdir(source)
+			except:
+				print 'FAILED TO REMOVE DIRECTORY'
+		return
 
 	elif isfile(source):
 		print '\tSource is a file.'
 
 		if not exists(corresponding_target):
-			print '\tCorresponding target doesn''t exist.'
+			print '\tCorresponding target doesn\'t exist.'
 			if not exists(target):
 				mkdir(target)
 			scp(source, target)
-			sourcehash, targethash = hash_both(source, corresponding_target)
-			if sourcehash == targethash and behavior == smv:
+			hash_both(source, corresponding_target)
+			if x.sourcehash == x.targethash and x.behavior in [smv, smerge]:
 				remove(source)
+			return
 
 		elif isdir(corresponding_target):
-			print 'Aborting: Target exists and is a directory.'
+			print 'Aborting: Unmergeable: Source File and Target Directory.'
 			return
 
 		elif isfile(corresponding_target):
@@ -70,38 +71,44 @@ def transfer_to_target(source, target):
 
 			if sourcesize == targetsize:
 
-				sourcehash, targethash = hash_both(source, corresponding_target)
-
-				if sourcehash != targethash:
-					print 'Aborting: Content binary differs.'
-					return
+				hash_both(source, corresponding_target)
+				if x.sourcehash != x.targethash:
+					if x.behavior != smerge:
+						print 'Aborting: Same filesize but content binary differs.'
+						return
+					else:
+						_source += '.'+x.sourcehash
+						print '\tDifferent file. Saving as '+_source+'.'
+						move(source, _source)
+						transfer_to_target(_source, target)
+						return
 				else:
-					print 'Success: File complete. Content binary equal.'
-					if behavior == smv:
+					print '\tSuccess: File complete. Content binary equal.'
+					if x.behavior in [smv, smerge]:
 						remove(source)
+					return
 
 			elif sourcesize > targetsize:	# smaller
 
 				blocksize = 256*1024
 				pos = (targetsize / blocksize) * blocksize
 
-				global sourcehash, targethash
 				def HashSource():
-					global sourcehash
-					sourcehash = md5sum(source, end=pos)
-					print '\t'+source+' (partial): '+sourcehash
+					x.sourcehash = md5sum(source, end=targetsize)
+					print '\t'+source+' (partial): '+x.sourcehash
 				thread1 = Thread( target=HashSource )
+
 				def HashTarget():
-					global targethash
-					targethash = md5sum(corresponding_target, end=pos)
-					print '\t'+corresponding_target+': '+targethash
+					x.targethash = md5sum(corresponding_target)
+					print '\t'+corresponding_target+': '+x.targethash
 				thread2 = Thread( target=HashTarget )
+
 				thread1.start()
 				thread2.start()
 				thread1.join()
 				thread2.join()
 
-				if sourcehash != targethash:
+				if x.sourcehash != x.targethash:
 					print 'Aborting: Partial content binary differs.'
 					return
 				else:
@@ -111,16 +118,18 @@ def transfer_to_target(source, target):
 						print '\tRestarting transfer ...'
 						remove(corresponding_target)
 						scp(source, target)
-						sourcehash, targethash = hash_both(source, corresponding_target)
-						if sourcehash == targethash and behavior == smv:
+						hash_both(source, corresponding_target)
+						if x.sourcehash == x.targethash and x.behavior in [smv, smerge]:
 							remove(source)
+						return
 					else:
 						print '\tContinuing transfer ...'
 						truncate(corresponding_target, pos)
 						run('dd if="'+source+'" bs='+str(blocksize)+' skip='+str(pos/blocksize)+' | ssh -C '+login(target)+' dd of="'+path(corresponding_target)+'" bs='+str(blocksize)+' seek='+str(pos/blocksize))
-						sourcehash, targethash = hash_both(source, corresponding_target)
-						if sourcehash == targethash and behavior == smv:
+						hash_both(source, corresponding_target)
+						if x.sourcehash == x.targethash and x.behavior in [smv, smerge]:
 							remove(source)
+						return
 
 
 			elif sourcesize < targetsize:	# bigger
