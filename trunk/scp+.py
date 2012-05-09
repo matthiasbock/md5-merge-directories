@@ -11,17 +11,17 @@ from constants import *
 
 from sys import argv, exit
 from fs import fname, exists
+import settings
 
-global behavior
 app = fname(argv[0])
 if app == 'smv':
-	behavior = smv
+	settings.behavior = smv
 	print '### Secure Move ###'
 elif app == 'smerge':
-	behavior = smerge
+	settings.behavior = smerge
 	print '### Secure Merge ###'
 else:
-	behavior = scp_plus
+	settings.behavior = scp_plus
 	print '### Secure Copy ###'
 
 if len(argv) < 3:
@@ -29,20 +29,18 @@ if len(argv) < 3:
 	Usage()
 	exit()
 
-global sources, target
-sources = []
 for i in range(1, len(argv)-1):
 	arg = argv[i].rstrip('/')
 	if exists(arg):
-		sources.append(arg)
+		settings.sources.append(arg)
 	else:
 		print 'Omitting source "'+arg+'": Not found.'
-target = argv[len(argv)-1].rstrip('/')
+settings.target = argv[len(argv)-1].rstrip('/')
 
-print str(len(sources))+' sources: '+str(sources)
-print 'target: '+target
+print str(len(settings.sources))+' sources: '+str(settings.sources)
+print 'target: '+settings.target
 
-if len(sources) < 1:
+if len(settings.sources) < 1:
 	print 'Aborting: No sources.'
 	exit()
 
@@ -50,6 +48,6 @@ if len(sources) < 1:
 # Main
 
 from main import transfer_to_target
-for source in sources:
-	transfer_to_target(source, target)
+for source in settings.sources:
+	transfer_to_target(source, settings.target)
 
