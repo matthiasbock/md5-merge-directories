@@ -6,7 +6,7 @@ import os, shutil
 import fsremote
 
 def fname( name ):
-	s = source.split('/')
+	s = name.split('/')
 	return s[len(s)-1]
 
 def listdir( folder ):
