@@ -3,6 +3,7 @@
 
 def format(size):
 	suffices = ['PB', 'TB', 'GB', 'MB', 'KB', 'Byte']
+	suffix = suffices[5]
 	for i in range(len(suffices)):
 		exponent = len(suffices)-1-i
 		divisor = 1024**exponent
