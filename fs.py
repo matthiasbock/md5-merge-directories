@@ -1,7 +1,6 @@
 #!/usr/bin/python2.6
 # -*- coding: iso-8859-15 -*-
 
-from md5 import largefileMD5
 import os, shutil
 import fsremote
 
@@ -45,11 +44,12 @@ def getsize( filename ):
 	else:
 		return os.path.getsize( filename )
 
-def md5sum( filename ):
+def md5sum( filename, end=None ):
 	if fsremote.is_remote( filename ):
-		return fsremote.md5sum( filename )
+		return fsremote.md5sum( filename, end )
 	else:
-		return largefileMD5( filename )
+		from md5 import md5sum as localmd5sum
+		return localmd5sum( filename, end ) #largefileMD5( filename )
 
 def isfile( thing ):
 	if fsremote.is_remote( thing ):

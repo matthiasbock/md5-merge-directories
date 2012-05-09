@@ -4,8 +4,10 @@
 from fs import *
 from os.path import join
 from utils import format
+from threading import Thread
 
 def transfer_to_target(source, target):
+
 	print '--- '+source+' ---'
 
 	global corresponding_target
@@ -34,23 +36,64 @@ def transfer_to_target(source, target):
 		elif isfile(corresponding_target):
 			print '\tTarget exists and is a file.'
 
-			sourcesize = fsize(source)
+			sourcesize = getsize(source)
 			print '\t'+source+': '+format(sourcesize)
-			targetsize = fsize(corresponding_target)
+			targetsize = getsize(corresponding_target)
 			print '\t'+corresponding_target+': '+format(targetsize)
 
 			if sourcesize == targetsize:
-				if md5sum(source) == md5sum(targetfile):
-					print 'equal hashes'
+
+				def HashSource():
+					global sourcehash
+					sourcehash = md5sum(source)
+					print '\t'+source+': '+sourcehash
+
+				thread1 = Thread( target=HashSource )
+
+				def HashTarget():
+					global targethash
+					targethash = md5sum(corresponding_target)
+					print '\t'+corresponding_target+': '+targethash
+
+				thread2 = Thread( target=HashTarget )
+
+				thread1.start()
+				thread2.start()
+				thread1.join()
+				thread2.join()
+
+				if sourcehash != targethash:
+					print 'Aborting: Content binary differs.'
+					return
 				else:
-					print 'hashes differ'
+					print 'Success: File complete. Content binary equal.'
 
 			elif sourcesize > targetsize:	# smaller
-				if md5sum(source) != md5sum(targetfile)#, end=getsize(source)):	# different
-					print 'Aborting: Partial files binary differ.'
+
+				def HashSource():
+					global sourcehash
+					sourcehash = md5sum(source, end=targetsize)
+					print '\t'+source+' (partial): '+sourcehash
+
+				thread1 = Thread( target=HashSource )
+
+				def HashTarget():
+					global targethash
+					targethash = md5sum(corresponding_target)
+					print '\t'+corresponding_target+': '+targethash
+
+				thread2 = Thread( target=HashTarget )
+
+				thread1.start()
+				thread2.start()
+				thread1.join()
+				thread2.join()
+
+				if sourcehash != targethash:
+					print 'Aborting: Partial content binary differs.'
 					return
 				else:								# equal
-					print '\tTarget is source file''s partial. Continuing transfer ...'
+					print '\tContinuing transfer ...'
 #					partials = listdir(join(target, '*.partial-*'))
 #					if len(partials) > 0:
 #						concatenate_partial_files(source, target, Self, partials)

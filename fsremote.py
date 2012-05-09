@@ -63,8 +63,14 @@ def exists(thing):
 def getsize(filename):
 	return int(ssh(login(filename), "stat -c %s '"+path(filename)+"'"))
 
-def md5sum(filename):
-	return ssh(login(filename), 'md5sum "'+path(filename)+'"')[:32]
+def md5sum(filename, end=None):
+	if end is None:
+		return ssh(login(filename), 'md5sum "'+path(filename)+'"')[:32]
+	else:
+		from utils import ggT
+		buffersize = ggT( 1024**2, end )
+		count = end/buffersize
+		return ssh(login(filename), 'dd if="'+path(filename)+'" bs='+str(buffersize)+' count='+str(count)+' | md5sum')[:32]
 
 def isfile(thing):
 	return ssh(login(thing), "if [ -f '"+path(thing)+"' ]; then echo true; else echo false; fi")=='true'
