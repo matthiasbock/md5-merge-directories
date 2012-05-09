@@ -61,13 +61,6 @@ def transfer_to_target(source, target):
 		elif isfile(corresponding_target):
 			print '\tTarget exists and is a file.'
 
-			partial = fname(source)+'.part'
-			for f in listdir(target):
-				if partial in f:
-					print '\tMerging partial file ...'
-					concatenate(corresponding_target, join(target, f))
-					break
-
 			sourcesize = getsize(source)
 			print '\t'+source+': '+format(sourcesize)
 			targetsize = getsize(corresponding_target)
@@ -110,29 +103,20 @@ def transfer_to_target(source, target):
 					print 'Aborting: Partial content binary differs.'
 					return
 				else:
-					from utils import run, ggT
+					from utils import run
+					from fsremote import login, path
 
-					print '\tContinuing transfer ...'
-					blocksize = 10*(1024**2)
+					blocksize = 1024**2
 					pos = (targetsize / blocksize) * blocksize
 					if pos == 0:
+						print '\tRestarting transfer ...'
 						remove(corresponding_target)
 						scp(source, target)
 						sourcehash, targethash = hash_both(source, corresponding_target)
 					else:
+						print '\tContinuing transfer ...'
 						truncate(corresponding_target, pos)
-						count = sourcesize / blocksize
-						remaining = sourcesize % blocksize
-						for i in range(count):
-							# if islocal:
-							run('dd if="'+source+'" skip='+str(pos/blocksize)+' of="'+source+'.part" bs='+str(blocksize)+' count=1')
-							pos += blocksize
-							scp(source+'.part', target)
-							concatenate(corresponding_target, corresponding_target+'.part')
-						if remaining > 0:
-							run('dd if="'+source+'" skip='+str(pos/blocksize)+' of="'+source+'.part"')
-							scp(source+'.part', target)
-							concatenate(corresponding_target, corresponding_target+'.part')
+						run('dd if="'+source+'" bs='+str(blocksize)+' skip='+str(pos/blocksize)+' | ssh -C '+login(target)+' dd of="'+path(corresponding_target)+'" bs='+str(blocksize)+' seek='+str(pos/blocksize))
 						sourcehash, targethash = hash_both(source, corresponding_target)
 
 
