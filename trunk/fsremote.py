@@ -93,3 +93,10 @@ def move(source, target):
 	scp(source, target)
 	remove(source)
 
+def concatenate(file1, file2):
+	ssh(login(file1), 'cat "'+path(file2)+'" >> "'+path(file1)+'"')
+
+def truncate(filename, filesize):
+	ssh(login(filename), 'truncate '+str(filesize)+' "'+path(filename)+'"')
+
+
