@@ -8,3 +8,8 @@ Additionally provides the following features:
  * validate transfer by MD5 hash comparison
  * tar folders and bzip2 files before transfer, unpack on the remote machine
  * continue interrupted transfers
+
+== Console Arguments ==
+
+ * multiple sources: files or folders
+ * one target: must be a folder
